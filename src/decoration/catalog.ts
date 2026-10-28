@@ -1749,9 +1749,10 @@ export const DECORATION_KINDS: DecorationKind[] = [
       height(2.4, 1.6, 3.2),
       depth(0.3, 0.15, 0.6),
       p('offset', 'Firebox offset', -0.3, -1, 1, 0.05, ''),
+      p('firebox_depth', 'Firebox depth', 0.5, 0.1, 0.95, 0.05, ''),
     ],
-    { brick: '#505a62', mortar: '#5b656d', firebox: '#1a1b1d', mantel: SCANDI.oak, hearth: '#3f474d' },
-    { brick: 'matte', mortar: 'matte', firebox: 'matte', mantel: 'wood', hearth: 'matte' },
+    { brick: '#505a62', firebox: '#1a1b1d' },
+    { brick: 'matte', firebox: 'matte' },
     NONE,
   ),
   kind(
