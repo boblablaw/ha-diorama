@@ -737,6 +737,42 @@ rooms:
       - [67, 7.5]
       - [67, 11.5]
       - [58, 11.5]
+  - id: wall
+    name: "Wall"
+    points:
+      - [0, 29.5]
+      - [5.5, 29.5]
+      - [5.5, 33.5]
+      - [0, 33.5]
+  - id: fireplace_wall
+    name: "Fireplace wall"
+    points:
+      - [6, 29.5]
+      - [12, 29.5]
+      - [12, 33.5]
+      - [6, 33.5]
+  - id: stairs
+    name: "Stairs"
+    points:
+      - [12.5, 29.5]
+      - [18, 29.5]
+      - [18, 34.5]
+      - [12.5, 34.5]
+  - id: armchair
+    name: "Armchair"
+    points:
+      - [18.5, 29.5]
+      - [23, 29.5]
+      - [23, 33.5]
+      - [18.5, 33.5]
+  - id: plants_new
+    name: "Dracaena / Monstera"
+    points:
+      - [23.5, 29.5]
+      - [29, 29.5]
+      - [29, 33.5]
+      - [23.5, 33.5]
+
 decorations:
   - id: light_ceiling_focus
     kind: light_ceiling
@@ -1894,3 +1930,46 @@ decorations:
     room: sprinkler
     position: [65.75, 9.5]
     variant: drip
+  - id: wall_main
+    kind: wall
+    room: wall
+    position: [2.75, 31.5]
+  - id: fireplace_wall_main
+    kind: fireplace_wall
+    room: fireplace_wall
+    position: [9, 31.5]
+  - id: stairs_up
+    kind: stairs
+    room: stairs
+    position: [14, 31]
+    variant: up
+  - id: stairs_down
+    kind: stairs
+    room: stairs
+    position: [16.5, 31]
+    variant: down
+  - id: armchair_dresde
+    kind: armchair
+    room: armchair
+    position: [19.6, 31.5]
+    variant: dresde
+  - id: armchair_block
+    kind: armchair
+    room: armchair
+    position: [20.9, 31.5]
+    variant: block
+  - id: armchair_rail
+    kind: armchair
+    room: armchair
+    position: [22.1, 31.5]
+    variant: rail
+  - id: plant_dracaena
+    kind: plant_large
+    room: plants_new
+    position: [25, 31.5]
+    variant: dracaena
+  - id: plant_monstera
+    kind: plant_large
+    room: plants_new
+    position: [27.5, 31.5]
+    variant: monstera
