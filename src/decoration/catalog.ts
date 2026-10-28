@@ -1766,6 +1766,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
       width(1, 0.7, 1.8),
       p('tread', 'Tread depth', 0.28, 0.2, 0.45, 0.01),
       p('rise', 'Total rise', 1, 0.4, 3.2, 0.05),
+      p('elevation', 'Raise / lower', 0, -2.5, 2.5, 0.05, ''),
       flag('rail_left', 'Rail left', 1),
       flag('rail_right', 'Rail right', 1),
     ],

@@ -92,8 +92,12 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
   if (p('rail_left') > 0.5) rails.push(railing(-1))
   if (p('rail_right') > 0.5) rails.push(railing(1))
 
+  // A free vertical offset so the whole flight can be slid up or down to seat
+  // it on the floor or drop it into a stairwell.
+  const elev = p('elevation')
+
   return (
-    <group>
+    <group position={[0, elev, 0]}>
       {steps}
       {stringers}
       {rails}
