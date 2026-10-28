@@ -44,10 +44,13 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
     )
     // The riser closing the front of the drop below each tread. Going up, the
     // floor-level first tread needs none; going down, every tread has one.
+    // The riser closes the vertical drop between two treads: at the front of
+    // tread i going up, at its back (= front of the next, lower tread) going down.
     const riserY = down ? -(i + 0.5) * riser : (i - 0.5) * riser
+    const riserZ = down ? -(i + 1) * tread : -i * tread
     if ((down || i >= 1) && showRisers) {
       steps.push(
-        <Panel key={`r${i}`} size={[w - 0.01, riser + treadT, 0.035]} radius={0.004} position={[0, riserY, -i * tread]}>
+        <Panel key={`r${i}`} size={[w - 0.01, riser + treadT, 0.035]} radius={0.004} position={[0, riserY, riserZ]}>
           {M('risers')}
         </Panel>,
       )
