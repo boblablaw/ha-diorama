@@ -65,9 +65,15 @@ export default function FurnitureModel({ kind, item, state }: Props) {
           reach={p('reach')}
           chaise={p('chaise') > 0.5}
           flip={p('flip') > 0.5}
+          seats={p('seats') > 0 ? Math.round(p('seats')) : undefined}
           M={M}
         />
       )
+    }
+    case 'armchair': {
+      // A single-seat lounge chair, the sofa held to one cushion set.
+      const style = decorationVariant(kind, item.variant)?.id ?? 'dresde'
+      return <Sofa style={style} w={p('width')} d={p('depth')} reach={0} chaise={false} flip={false} seats={1} M={M} />
     }
     case 'dining_chair': {
       const style = decorationVariant(kind, item.variant)?.id ?? 'oia'

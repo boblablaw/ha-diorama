@@ -722,6 +722,9 @@ export const DECORATION_KINDS: DecorationKind[] = [
     [
       width(SOFA_WIDTH, 0.6, 4),
       depth(SOFA_DEPTH, 0.6, 1.3),
+      // 0 lets the width decide the number of seat/back cushion sets; 1 to 3
+      // pins it, so a pillow sofa can be made a one, two or three seater.
+      p('seats', 'Cushion sets', 0, 0, 3, 1, ''),
       flag('chaise', 'Chaise longue'),
       p('reach', 'Chaise length', SOFA_REACH, 1.2, 2.2),
       flag('flip', 'Chaise left'),
@@ -742,6 +745,35 @@ export const DECORATION_KINDS: DecorationKind[] = [
         id: 'rail',
         label: 'Teak Rail',
         params: { width: 2.1, depth: 0.86 },
+        colors: { upholstery: '#6f7a67', cushions: '#6f7a67', frame: '#9a6a42' },
+        materials: { upholstery: 'fabric', cushions: 'fabric', frame: 'wood' },
+      },
+    ],
+  ),
+  kind(
+    'armchair',
+    'seating',
+    'Armchair',
+    'floor',
+    // A single-seat lounge chair, drawn from the sofa with its width held to
+    // one cushion set. The same three styles as the sofa.
+    [width(0.8, 0.6, 1.2), depth(0.84, 0.7, 1.05)],
+    { upholstery: SOFA_FABRIC_COLOR, cushions: SOFA_FABRIC_COLOR, legs: SOFA_LEG_COLOR },
+    { upholstery: 'fabric', cushions: 'fabric', legs: 'matte' },
+    NONE,
+    [
+      { id: 'dresde', label: 'Pillow Arm' },
+      {
+        id: 'block',
+        label: 'Plinth Block',
+        params: { depth: 0.9 },
+        colors: { upholstery: '#c9bda9', cushions: '#c9bda9', plinth: '#3a3531' },
+        materials: { upholstery: 'fabric', cushions: 'fabric', plinth: 'matte' },
+      },
+      {
+        id: 'rail',
+        label: 'Teak Rail',
+        params: { width: 0.82, depth: 0.84 },
         colors: { upholstery: '#6f7a67', cushions: '#6f7a67', frame: '#9a6a42' },
         materials: { upholstery: 'fabric', cushions: 'fabric', frame: 'wood' },
       },
@@ -1706,6 +1738,22 @@ export const DECORATION_KINDS: DecorationKind[] = [
 
   // Decor
   kind(
+    'stairs',
+    'decor',
+    'Stairs',
+    'floor',
+    // Tread depth and overall size are the sliders; the step count follows the
+    // rise at a comfortable riser. `up` rises into the room, `down` descends.
+    [width(1, 0.7, 1.8), p('tread', 'Tread depth', 0.28, 0.2, 0.45, 0.01), p('rise', 'Total rise', 1, 0.4, 3.2, 0.05)],
+    { steps: SCANDI.offWhite, risers: SCANDI.offWhite, stringer: SCANDI.oak, rail: SCANDI.offWhite, posts: SCANDI.offWhite },
+    { steps: 'wood', risers: 'matte', stringer: 'wood', rail: 'matte', posts: 'matte' },
+    NONE,
+    [
+      { id: 'up', label: 'Going up' },
+      { id: 'down', label: 'Going down' },
+    ],
+  ),
+  kind(
     'half_wall',
     'decor',
     'Half wall',
@@ -2017,7 +2065,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'media',
     'Soundbar',
     'floor',
-    [width(0.9, 0.4, 1.6), height(0.08, 0.05, 0.15), lift(0)],
+    [width(0.9, 0.4, 1.6), height(0.08, 0.05, 0.15), lift(0), base(0)],
     { grille: SCANDI.linen, caps: SCANDI.charcoal },
     { grille: 'fabric', caps: 'matte' },
     TOGGLE_LEVEL,
@@ -2038,7 +2086,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'media',
     'Speaker',
     'floor',
-    [size(0.14, 0.08, 0.35), only(height(0.17, 0.1, 0.5), ['pod', 'drum']), lift(0)],
+    [size(0.14, 0.08, 0.35), only(height(0.17, 0.1, 0.5), ['pod', 'drum']), lift(0), base(0)],
     { mesh: '#e6e4df', top: '#2a2c2e' },
     { mesh: 'fabric', top: 'ceramic' },
     TOGGLE_LEVEL,
@@ -2061,7 +2109,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'media',
     'Floor speaker',
     'floor',
-    [width(0.22, 0.12, 0.4), height(1, 0.6, 1.3)],
+    [width(0.22, 0.12, 0.4), height(1, 0.6, 1.3), base(0)],
     { cabinet: SCANDI.oak, drivers: '#1d1e20', trim: '#b4b8bb' },
     { cabinet: 'wood', drivers: 'matte', trim: 'metal' },
     TOGGLE_LEVEL,

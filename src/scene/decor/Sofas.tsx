@@ -108,11 +108,21 @@ type Layout = {
   chaiseX: [number, number]
 }
 
-function sofaLayout(w: number, d: number, reach: number, chaise: boolean, flip: boolean, armW: number): Layout {
+function sofaLayout(
+  w: number,
+  d: number,
+  reach: number,
+  chaise: boolean,
+  flip: boolean,
+  armW: number,
+  want?: number,
+): Layout {
   const total = chaise ? Math.max(reach, d + 0.3) : d
   const back = -total / 2
   const inner = w - armW * 2
-  const seats = sofaSeats(inner, chaise ? 2 : 1)
+  // `want` lets a sofa be pinned to a set number of cushion sets (1 to 4),
+  // instead of the width deciding; 0 or absent keeps the automatic count.
+  const seats = want && want > 0 ? Math.min(Math.round(want), 4) : sofaSeats(inner, chaise ? 2 : 1)
   const seatW = inner / seats
   const seatX = (i: number) => -inner / 2 + seatW * (i + 0.5)
   const long = chaise ? (flip ? 0 : seats - 1) : -1
@@ -120,7 +130,7 @@ function sofaLayout(w: number, d: number, reach: number, chaise: boolean, flip: 
   return { total, back, front: back + d, inner, seats, seatW, seatX, long, chaiseX }
 }
 
-type SofaProps = { w: number; d: number; reach: number; chaise: boolean; flip: boolean; M: Slot }
+type SofaProps = { w: number; d: number; reach: number; chaise: boolean; flip: boolean; seats?: number; M: Slot }
 
 export function Sofa({ style, ...props }: SofaProps & { style: string }) {
   if (style === 'block') return <BlockSofa {...props} />
@@ -163,7 +173,7 @@ function BackCushion({
 // The pillow arm sofa, after Pilma's Dresde: thin padded arms, a slim back
 // frame, loose back and lumbar cushions, on slim metal legs that lean out
 // at the foot.
-function PillowSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
+function PillowSofa({ w, d, reach, chaise, flip, seats: want, M }: SofaProps) {
   const { total, back, front, inner, seats, seatW, seatX, long, chaiseX } = sofaLayout(
     w,
     d,
@@ -171,6 +181,7 @@ function PillowSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
     chaise,
     flip,
     SOFA_ARM_W,
+    want,
   )
   const seatY = SOFA_LEG_H + SOFA_BASE_H
   const seatBack = back + SOFA_BACK_T
@@ -285,7 +296,7 @@ function PillowSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
 // The plinth sofa, after Hay's Mags: a low deep block on a dark plinth set
 // back from its edges, wide square arms and back, and one seat cushion and
 // one tall back cushion per seat.
-function BlockSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
+function BlockSofa({ w, d, reach, chaise, flip, seats: want, M }: SofaProps) {
   const { total, back, front, inner, seats, seatW, seatX, long, chaiseX } = sofaLayout(
     w,
     d,
@@ -293,6 +304,7 @@ function BlockSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
     chaise,
     flip,
     BLOCK_ARM_W,
+    want,
   )
   const [plinthH, setback] = BLOCK_PLINTH
   const end = back + total
@@ -383,9 +395,9 @@ function BlockSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
 // The rail sofa, after Karimoku's Castor: an open teak frame on round
 // tapered legs, a flat board for each arm, rails round the seat and along
 // the top of an upholstered back, with the cushions laid in it.
-function RailSofa({ w, d, reach, chaise, flip, M }: SofaProps) {
+function RailSofa({ w, d, reach, chaise, flip, seats: want, M }: SofaProps) {
   const [armW, armT, armTop] = RAIL_ARM
-  const { total, back, front, inner, seats, seatW, seatX, long, chaiseX } = sofaLayout(w, d, reach, chaise, flip, armW)
+  const { total, back, front, inner, seats, seatW, seatX, long, chaiseX } = sofaLayout(w, d, reach, chaise, flip, armW, want)
   const [railH, railTop] = RAIL_SEAT_RAIL
   const end = back + total
   const seatBack = back + RAIL_BACK_T
