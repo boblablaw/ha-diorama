@@ -29,25 +29,29 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
   const riserT = 0.02
   const side = w / 2 - 0.03
 
-  // Top surface of tread i. Up: the bottom step sits one riser above the
-  // floor (its riser closes down to the floor). Down: the top step is flush
-  // with the floor and each next one drops a riser below it.
-  const topY = (i: number) => (down ? -i * riser : (i + 1) * riser)
+  // Top surface of tread i, with the lowest tread flush on the floor. Up: the
+  // first tread sits on the floor and each next rises a riser. Down: the top
+  // tread is on the floor and each next drops a riser below it.
+  const topY = (i: number) => dir * i * riser
   const midY = (topY(0) + topY(n - 1)) / 2
 
   const steps: ReactNode[] = []
   for (let i = 0; i < n; i++) {
     steps.push(
-      <Panel key={`t${i}`} size={[w, treadT, tread]} radius={0.012} position={[0, topY(i) - treadT / 2, -(i + 0.5) * tread]}>
+      <Panel key={`t${i}`} size={[w, treadT, tread]} radius={0.012} position={[0, topY(i) - (dir * treadT) / 2, -(i + 0.5) * tread]}>
         {M('steps')}
       </Panel>,
     )
-    // Riser closing the front edge of tread i, one riser tall down from its top.
-    steps.push(
-      <Panel key={`r${i}`} size={[w - 0.02, riser, riserT]} radius={0.003} position={[0, topY(i) - riser / 2, -i * tread + riserT / 2]}>
-        {M('risers')}
-      </Panel>,
-    )
+    // The riser closing the front of the drop below each tread. Going up, the
+    // floor-level first tread needs none; going down, every tread has one.
+    const riserY = down ? -(i + 0.5) * riser : (i - 0.5) * riser
+    if (down || i >= 1) {
+      steps.push(
+        <Panel key={`r${i}`} size={[w - 0.02, riser, riserT]} radius={0.003} position={[0, riserY, -i * tread + riserT / 2]}>
+          {M('risers')}
+        </Panel>,
+      )
+    }
   }
 
   const stringers = [-1, 1].map(s => (

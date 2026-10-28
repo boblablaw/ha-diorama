@@ -1,54 +1,59 @@
-import { colorValue, materialValue, paramValue, type DecorationKind } from '#/decoration/catalog.ts'
-import { Material, Panel } from '#/scene/decor/parts.tsx'
+import { colorValue, paramValue, type DecorationKind } from '#/decoration/catalog.ts'
 import type { DecorationConfig } from '#/types.ts'
-import type { ReactNode } from 'react'
+import { useMemo } from 'react'
+import { CanvasTexture, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace } from 'three'
 
-// A plain brick wall / room divider: a mortar-coloured slab faced with brick
-// courses in a running bond, the thin gaps between the bricks reading as the
-// mortar. Bricks are proud of both faces, so the coursing shows from either
-// side. Width, height and depth are the sliders. (A firebox inset comes later.)
+// A plain brick wall / room divider: a single slab painted with a running-bond
+// brick texture (red bricks, mortar joints) that tiles to the wall's size, so
+// the coursing stays crisp at any width or height and costs one mesh. Width,
+// height and depth are the sliders. (A firebox inset comes later.)
 export default function FireplaceWallModel({ kind, item }: { kind: DecorationKind; item: DecorationConfig }) {
   const c = (slot: string) => colorValue(kind, item.colors, slot, item.variant)
-  const m = (slot: string) => materialValue(kind, slot, item.variant)
-  const M = (slot: string) => <Material color={c(slot)} material={m(slot)} />
   const p = (id: string) => paramValue(kind, item.params, id, item.variant)
 
   const W = p('width')
   const H = p('height')
   const D = p('depth')
+  const brick = c('brick')
+  const mortar = c('mortar')
 
-  const gap = 0.012 // mortar joint
-  const brickFull = 0.24 // nominal brick length including a joint
-  const rows = Math.max(3, Math.round(H / 0.097))
-  const courseH = H / rows
-  const brickH = Math.max(0.03, courseH - gap)
-  const brickD = D + 0.02 // proud of both faces, so joints read as recesses
-
-  const bricks: ReactNode[] = []
-  for (let r = 0; r < rows; r++) {
-    const cy = r * courseH + courseH / 2
-    const shift = r % 2 ? brickFull / 2 : 0
-    for (let bx = -W / 2 - shift + brickFull / 2; bx - brickFull / 2 < W / 2; bx += brickFull) {
-      const left = Math.max(-W / 2, bx - (brickFull - gap) / 2)
-      const right = Math.min(W / 2, bx + (brickFull - gap) / 2)
-      const bw = right - left
-      if (bw < 0.03) continue
-      bricks.push(
-        <mesh key={`${r}:${bx.toFixed(2)}`} position={[(left + right) / 2, cy, 0]} castShadow receiveShadow>
-          <boxGeometry args={[bw, brickH, brickD]} />
-          {M('brick')}
-        </mesh>,
-      )
+  const texture = useMemo(() => {
+    const px = 256
+    const cv = document.createElement('canvas')
+    cv.width = px
+    cv.height = px
+    const g = cv.getContext('2d')!
+    g.fillStyle = mortar
+    g.fillRect(0, 0, px, px)
+    const cols = 4
+    const rows = 8
+    const bw = px / cols
+    const bh = px / rows
+    const joint = 6 // mortar joint in px
+    g.fillStyle = brick
+    for (let r = 0; r < rows; r++) {
+      const off = r % 2 ? bw / 2 : 0
+      for (let x = -bw; x < px + bw; x += bw) {
+        g.fillRect(x + off + joint / 2, r * bh + joint / 2, bw - joint, bh - joint)
+      }
     }
-  }
+    const t = new CanvasTexture(cv)
+    t.wrapS = t.wrapT = RepeatWrapping
+    t.colorSpace = SRGBColorSpace
+    return t
+  }, [brick, mortar])
+
+  // One tile ≈ 4 bricks wide by 8 courses tall, so bricks read ~24 cm × ~10 cm.
+  texture.repeat.set(Math.max(1, Math.round(W / 0.95)), Math.max(1, Math.round(H / 0.8)))
+
+  const material = useMemo(() => new MeshStandardMaterial({ roughness: 0.95 }), [])
+  material.map = texture
+  material.needsUpdate = true
 
   return (
-    <group>
-      {/* The mortar sits behind, showing through the joints between bricks. */}
-      <Panel size={[W, H, D]} radius={0.01} position={[0, H / 2, 0]}>
-        {M('mortar')}
-      </Panel>
-      {bricks}
-    </group>
+    <mesh position={[0, H / 2, 0]} castShadow receiveShadow>
+      <boxGeometry args={[W, H, D]} />
+      <primitive object={material} attach="material" />
+    </mesh>
   )
 }
