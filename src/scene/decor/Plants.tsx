@@ -921,7 +921,7 @@ function dracaena(size: number, height: number, potH: number): Parts {
   const f: Parts = { stems: new Foliage(), leaves: new Foliage() }
   const rnd = random(23)
   const soil = potH * 0.9
-  const L = clamp(height * 0.3, 0.2, 0.5)
+  const L = clamp(Math.min(height * 0.3, size * 0.5), 0.2, 0.5)
   const canes = 3
   const trunkR = clamp(height * 0.011, 0.01, 0.02)
   for (let i = 0; i < canes; i++) {
