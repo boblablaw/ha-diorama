@@ -28,7 +28,6 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
   const treadT = 0.045
   const riserT = 0.02
   const side = w / 2 - 0.03
-  const railH = 0.9
 
   // Top surface of tread i. Up: the bottom step sits one riser above the
   // floor (its riser closes down to the floor). Down: the top step is flush
@@ -63,35 +62,6 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
     </Panel>
   ))
 
-  const railing = (s: number): ReactNode => (
-    <group key={`rail${s}`}>
-      <Panel
-        size={[0.045, 0.05, railLen]}
-        radius={0.018}
-        position={[s * side, midY + railH, -run / 2]}
-        rotation={[dir * slope, 0, 0]}
-      >
-        {M('rail')}
-      </Panel>
-      {Array.from({ length: n }, (_, i) => (
-        <Panel key={`bal${i}`} size={[0.028, railH, 0.028]} radius={0.008} position={[s * side, topY(i) + railH / 2, -(i + 0.5) * tread]}>
-          {M('posts')}
-        </Panel>
-      ))}
-      {/* Stouter newel posts at each end. */}
-      <Panel size={[0.06, railH + 0.06, 0.06]} radius={0.01} position={[s * side, topY(0) + (railH + 0.06) / 2, -0.05]}>
-        {M('posts')}
-      </Panel>
-      <Panel size={[0.06, railH + 0.06, 0.06]} radius={0.01} position={[s * side, topY(n - 1) + (railH + 0.06) / 2, -run + 0.05]}>
-        {M('posts')}
-      </Panel>
-    </group>
-  )
-
-  const rails: ReactNode[] = []
-  if (p('rail_left') > 0.5) rails.push(railing(-1))
-  if (p('rail_right') > 0.5) rails.push(railing(1))
-
   // A free vertical offset so the whole flight can be slid up or down to seat
   // it on the floor or drop it into a stairwell.
   const elev = p('elevation')
@@ -100,7 +70,6 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
     <group position={[0, elev, 0]}>
       {steps}
       {stringers}
-      {rails}
     </group>
   )
 }

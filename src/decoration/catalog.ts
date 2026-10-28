@@ -1744,15 +1744,9 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'floor',
     // A full-height brick divider with a firebox off to one side. Width,
     // height and depth size the wall; offset slides the firebox left/right.
-    [
-      width(2.6, 1, 5),
-      height(2.4, 1.6, 3.2),
-      depth(0.3, 0.15, 0.6),
-      p('offset', 'Firebox offset', -0.3, -1, 1, 0.05, ''),
-      p('firebox_depth', 'Firebox depth', 0.5, 0.1, 0.95, 0.05, ''),
-    ],
-    { brick: '#505a62', firebox: '#1a1b1d' },
-    { brick: 'matte', firebox: 'matte' },
+    [width(2.6, 1, 5), height(2.4, 1.6, 3.2), depth(0.3, 0.1, 1)],
+    { brick: '#9c5a47', mortar: '#d8d2c6' },
+    { brick: 'matte', mortar: 'matte' },
     NONE,
   ),
   kind(
@@ -1767,8 +1761,6 @@ export const DECORATION_KINDS: DecorationKind[] = [
       p('tread', 'Tread depth', 0.28, 0.2, 0.45, 0.01),
       p('rise', 'Total rise', 1, 0.4, 3.2, 0.05),
       p('elevation', 'Raise / lower', 0, -2.5, 2.5, 0.05, ''),
-      flag('rail_left', 'Rail left', 1),
-      flag('rail_right', 'Rail right', 1),
     ],
     { steps: SCANDI.offWhite, risers: SCANDI.offWhite, stringer: SCANDI.oak, rail: SCANDI.offWhite, posts: SCANDI.offWhite },
     { steps: 'wood', risers: 'matte', stringer: 'wood', rail: 'matte', posts: 'matte' },
