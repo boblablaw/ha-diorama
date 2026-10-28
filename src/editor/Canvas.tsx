@@ -20,7 +20,7 @@ import { TRACE_LEAST_WIDTH_M, traceCovers, type Trace } from '#/editor/trace.ts'
 import { TraceFrame, TraceImage } from '#/editor/TraceLayer.tsx'
 import type { Selection, Tool } from '#/editor/types.ts'
 import { round, snap, toPlan, toScreen, zoomAt, type View } from '#/editor/view.ts'
-import { snapToWall } from '#/editor/walls.ts'
+import { snapToWall, snapToWallFace } from '#/editor/walls.ts'
 import {
   freePlacement,
   furthestValid,
@@ -411,8 +411,11 @@ export default function Canvas({
         const roomFor = over ?? home
         let landing: DecorationConfig = { ...item, position: target, room: roomFor?.id ?? item.room }
         if (kind?.mount === 'wall' && roomFor) {
-          // Wall items sit on the nearest wall of the room and face inward.
-          const snapped = snapToWall(target, roomFor.points)
+          // Wall items sit on the nearest wall and face out of it — the room's
+          // own walls, or the face of a half wall / fireplace wall if nearer.
+          const roomSnap = snapToWall(target, roomFor.points)
+          const faceSnap = snapToWallFace(target, current)
+          const snapped = faceSnap && faceSnap.dist < roomSnap.dist ? faceSnap : roomSnap
           landing = { ...landing, position: snapped.point, rotation: snapped.rotation }
         } else if (!over && home) {
           const from = item.position

@@ -1801,16 +1801,6 @@ export const DECORATION_KINDS: DecorationKind[] = [
     ],
   ),
   kind(
-    'wall',
-    'decor',
-    'Wall',
-    'floor',
-    [width(2.5, 0.4, 8), height(2.4, 0.4, 3.2), depth(0.15, 0.05, 0.6)],
-    { wall: SCANDI.offWhite },
-    { wall: 'matte' },
-    NONE,
-  ),
-  kind(
     'half_wall',
     'decor',
     'Half wall',

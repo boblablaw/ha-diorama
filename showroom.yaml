@@ -737,13 +737,6 @@ rooms:
       - [67, 7.5]
       - [67, 11.5]
       - [58, 11.5]
-  - id: wall
-    name: "Wall"
-    points:
-      - [0, 29.5]
-      - [5.5, 29.5]
-      - [5.5, 33.5]
-      - [0, 33.5]
   - id: fireplace_wall
     name: "Fireplace wall"
     points:
@@ -1938,10 +1931,6 @@ decorations:
     room: sprinkler
     position: [65.75, 9.5]
     variant: drip
-  - id: wall_main
-    kind: wall
-    room: wall
-    position: [2.75, 31.5]
   - id: fireplace_wall_main
     kind: fireplace_wall
     room: fireplace_wall
