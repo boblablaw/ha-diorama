@@ -1762,8 +1762,8 @@ export const DECORATION_KINDS: DecorationKind[] = [
       p('rise', 'Total rise', 1, 0.4, 3.2, 0.05),
       p('elevation', 'Raise / lower', 0, -2.5, 2.5, 0.05, ''),
     ],
-    { steps: SCANDI.offWhite, risers: SCANDI.offWhite, stringer: SCANDI.oak, rail: SCANDI.offWhite, posts: SCANDI.offWhite },
-    { steps: 'wood', risers: 'matte', stringer: 'wood', rail: 'matte', posts: 'matte' },
+    { steps: SCANDI.offWhite, risers: SCANDI.offWhite, stringer: SCANDI.oak },
+    { steps: 'wood', risers: 'matte', stringer: 'wood' },
     NONE,
     [
       { id: 'up', label: 'Going up' },
