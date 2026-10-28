@@ -1738,13 +1738,36 @@ export const DECORATION_KINDS: DecorationKind[] = [
 
   // Decor
   kind(
+    'fireplace_wall',
+    'decor',
+    'Fireplace wall',
+    'floor',
+    // A full-height brick divider with a firebox off to one side. Width,
+    // height and depth size the wall; offset slides the firebox left/right.
+    [
+      width(2.6, 1, 5),
+      height(2.4, 1.6, 3.2),
+      depth(0.3, 0.15, 0.6),
+      p('offset', 'Firebox offset', -0.3, -1, 1, 0.05, ''),
+    ],
+    { brick: '#505a62', mortar: '#5b656d', firebox: '#1a1b1d', mantel: SCANDI.oak, hearth: '#3f474d' },
+    { brick: 'matte', mortar: 'matte', firebox: 'matte', mantel: 'wood', hearth: 'matte' },
+    NONE,
+  ),
+  kind(
     'stairs',
     'decor',
     'Stairs',
     'floor',
     // Tread depth and overall size are the sliders; the step count follows the
     // rise at a comfortable riser. `up` rises into the room, `down` descends.
-    [width(1, 0.7, 1.8), p('tread', 'Tread depth', 0.28, 0.2, 0.45, 0.01), p('rise', 'Total rise', 1, 0.4, 3.2, 0.05)],
+    [
+      width(1, 0.7, 1.8),
+      p('tread', 'Tread depth', 0.28, 0.2, 0.45, 0.01),
+      p('rise', 'Total rise', 1, 0.4, 3.2, 0.05),
+      flag('rail_left', 'Rail left', 1),
+      flag('rail_right', 'Rail right', 1),
+    ],
     { steps: SCANDI.offWhite, risers: SCANDI.offWhite, stringer: SCANDI.oak, rail: SCANDI.offWhite, posts: SCANDI.offWhite },
     { steps: 'wood', risers: 'matte', stringer: 'wood', rail: 'matte', posts: 'matte' },
     NONE,
@@ -2469,6 +2492,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     TOGGLE,
     [
       { id: 'casement', label: 'Twin Casement' },
+      { id: 'fixed', label: 'Picture Pane' },
       { id: 'sash', label: 'Box Sash' },
       { id: 'slider', label: 'Glide Pane' },
       {

@@ -1337,6 +1337,55 @@ export default function Canvas({
                 />
               )
             })}
+            {/* A tappable + handle at each edge midpoint adds a corner there,
+                so corners can be added on touch, where there is no right click
+                for the "Add corner here" menu. The new corner is selected, to
+                drag straight away into an L or a bay. */}
+            {selectedRoom.points.map((p, i) => {
+              const q = selectedRoom.points[(i + 1) % selectedRoom.points.length]
+              const mid: Point = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]
+              const [mx, my] = toScreen(view, mid)
+              return (
+                <g
+                  key={`add${i}`}
+                  className="cursor-copy"
+                  onPointerDown={e => {
+                    if (e.button !== 0) return
+                    e.stopPropagation()
+                    insertVertex(selectedRoom.id, i, mid)
+                  }}
+                >
+                  <circle
+                    cx={mx}
+                    cy={my}
+                    r={HANDLE - 1}
+                    fill="var(--card-background-color)"
+                    stroke={EDITOR_SELECTED_COLOR}
+                    strokeWidth={2}
+                    opacity={0.9}
+                    filter="url(#dio-lift)"
+                  />
+                  <line
+                    x1={mx - 4}
+                    y1={my}
+                    x2={mx + 4}
+                    y2={my}
+                    stroke={EDITOR_SELECTED_COLOR}
+                    strokeWidth={2}
+                    className="pointer-events-none"
+                  />
+                  <line
+                    x1={mx}
+                    y1={my - 4}
+                    x2={mx}
+                    y2={my + 4}
+                    stroke={EDITOR_SELECTED_COLOR}
+                    strokeWidth={2}
+                    className="pointer-events-none"
+                  />
+                </g>
+              )
+            })}
           </>
         )}
 

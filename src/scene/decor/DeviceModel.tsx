@@ -919,7 +919,16 @@ export default function DeviceModel({ kind, item, state, room, all }: Props) {
       // The ways a window can open other than on side hinges. Each keeps the
       // outer frame and puts its own leaves inside it.
       let leavesDrawn: ReactNode = null
-      if (style === 'sash') {
+      if (style === 'fixed') {
+        // A fixed picture pane: one sheet of glass filling the opening, with
+        // no leaf and nothing to open. The cover state is ignored.
+        leavesDrawn = (
+          <mesh position={[0, f + inner.h / 2, 0.02]}>
+            <planeGeometry args={[inner.w, inner.h]} />
+            <Glass color={glass} />
+          </mesh>
+        )
+      } else if (style === 'sash') {
         // A box sash: two halves, the lower one sliding up on the room side
         // of the upper one as the window opens, each split by a glazing bar.
         // The lower one tilts in from its foot.

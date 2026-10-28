@@ -15,6 +15,7 @@ import GardenModel from '#/scene/decor/Garden.tsx'
 import LightModel from '#/scene/decor/LightModel.tsx'
 import OutdoorModel from '#/scene/decor/Outdoor.tsx'
 import StairsModel from '#/scene/decor/Stairs.tsx'
+import FireplaceWallModel from '#/scene/decor/FireplaceWall.tsx'
 import { sameState, type ItemState } from '#/scene/decor/state.ts'
 import type { DecorationKind } from '#/decoration/catalog.ts'
 import { memo, useLayoutEffect, useMemo, type ReactNode } from 'react'
@@ -97,6 +98,7 @@ const KIND_MODELS: Record<string, FamilyModel> = {
   louvred_pergola: GardenModel,
   sauna: GardenModel,
   stairs: StairsModel,
+  fireplace_wall: FireplaceWallModel,
 }
 
 // The models that read the rest of the plan, not just the piece they stand
