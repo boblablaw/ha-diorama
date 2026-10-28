@@ -1839,7 +1839,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
       { id: 'fiddle', label: 'Fiddle leaf fig' },
       {
         id: 'monstera',
-        label: 'Monstera',
+        label: 'Monstera Deliciosa',
         colors: { pot: '#3a3a3a', soil: '#6e5a3a', stems: '#6a9a50', leaves: '#3a6e42' },
         materials: { pot: 'ceramic', soil: 'matte', stems: 'matte', leaves: 'wood' },
         params: { size: 1.1, height: 1.3 },
@@ -1878,6 +1878,13 @@ export const DECORATION_KINDS: DecorationKind[] = [
         colors: { pot: '#b5704a', soil: '#3c332b', stems: '#7a6a58', leaves: '#3f6e34' },
         materials: { pot: 'matte', soil: 'matte', stems: 'matte', leaves: 'ceramic' },
         params: { size: 1, height: 1.6 },
+      },
+      {
+        id: 'dracaena',
+        label: 'Dracaena Marginata',
+        colors: { pot: '#8a8f93', soil: '#3c332b', stems: '#8a6a4a', leaves: '#3c6b3a' },
+        materials: { pot: 'ceramic', soil: 'matte', stems: 'wood', leaves: 'matte' },
+        params: { size: 0.7, height: 1.7 },
       },
     ],
   ),

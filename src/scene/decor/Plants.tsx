@@ -914,6 +914,56 @@ function Wilt({ at, wilt, children }: { at: number; wilt: number; children: Reac
   )
 }
 
+// Dracaena marginata, the Madagascar dragon tree: a few thin, slightly leaning
+// woody canes, each topped with a loose crown of long, narrow, arching sword
+// leaves spiralling out of the top.
+function dracaena(size: number, height: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage() }
+  const rnd = random(23)
+  const soil = potH * 0.9
+  const L = clamp(height * 0.3, 0.2, 0.5)
+  const canes = 3
+  const trunkR = clamp(height * 0.011, 0.01, 0.02)
+  for (let i = 0; i < canes; i++) {
+    const bx = (rnd() - 0.5) * 0.08
+    const bz = (rnd() - 0.5) * 0.08
+    const caneH = (height - soil - L * 0.35) * (0.55 + (0.45 * i) / Math.max(1, canes - 1))
+    const leanX = (rnd() - 0.5) * 0.16
+    const leanZ = (rnd() - 0.5) * 0.16
+    const base = new Vector3(bx, soil - 0.02, bz)
+    const mid = new Vector3(bx + leanX * caneH * 0.4, soil - 0.02 + caneH * 0.55, bz + leanZ * caneH * 0.4)
+    const top = new Vector3(bx + leanX * caneH, soil - 0.02 + caneH, bz + leanZ * caneH)
+    f.stems.stem([base.toArray() as Vec3, mid.toArray() as Vec3, top.toArray() as Vec3], trunkR, trunkR * 0.55)
+    const crown = 11 + Math.round(rnd() * 4)
+    for (let j = 0; j < crown; j++) {
+      const a = (j / crown) * Math.PI * 2 + rnd() * 0.25
+      // Inner leaves stand up, outer ones arch out and down.
+      const rise = 1.2 - (j / crown) * 1.0 - rnd() * 0.15
+      const long = L * (0.7 + rnd() * 0.4)
+      leaf(
+        f,
+        {
+          length: long,
+          width: long * 0.085,
+          outline: SWORD,
+          fold: 0.3,
+          droop: long * (0.25 + (1.2 - rise) * 0.3),
+          curl: long * 0.06,
+          rows: 12,
+          cols: 2,
+          twist: (rnd() - 0.5) * 0.4,
+        },
+        top,
+        heading(a, rise),
+        0.012,
+        UP,
+        (rnd() - 0.5) * 0.5,
+      )
+    }
+  }
+  return f
+}
+
 export function FloorPlant({
   style,
   wilt = 0,
@@ -928,7 +978,8 @@ export function FloorPlant({
   // 0 watered to 1 dry.
   wilt?: number
 }) {
-  const kind = (['monstera', 'kentia', 'mango', 'bird', 'bamboo', 'ficus'] as const).find(k => k === style) ?? 'fiddle'
+  const kind =
+    (['monstera', 'kentia', 'mango', 'bird', 'bamboo', 'ficus', 'dracaena'] as const).find(k => k === style) ?? 'fiddle'
   const potR = kind === 'kentia' ? clamp(size * 0.16, 0.14, 0.22) : clamp(size * 0.2, 0.1, 0.2)
   const potH = kind === 'kentia' ? clamp(height * 0.2, 0.2, 0.38) : clamp(height * 0.2, 0.16, 0.34)
   const grown = useMemo(
@@ -946,7 +997,9 @@ export function FloorPlant({
                   ? bamboo(size, height, potH)
                   : kind === 'ficus'
                     ? ficus(size, height, potH)
-                    : fiddle(size, height, potH),
+                    : kind === 'dracaena'
+                      ? dracaena(size, height, potH)
+                      : fiddle(size, height, potH),
       ),
     [kind, size, height, potH],
   )
