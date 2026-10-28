@@ -26,8 +26,8 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
   const slope = Math.atan2(riser, tread)
   const railLen = Math.hypot(run, rise)
   const treadT = 0.045
-  const riserT = 0.02
   const side = w / 2 - 0.03
+  const showRisers = p('risers') > 0.5
 
   // Top surface of tread i, with the lowest tread flush on the floor. Up: the
   // first tread sits on the floor and each next rises a riser. Down: the top
@@ -38,16 +38,16 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
   const steps: ReactNode[] = []
   for (let i = 0; i < n; i++) {
     steps.push(
-      <Panel key={`t${i}`} size={[w, treadT, tread]} radius={0.012} position={[0, topY(i) - (dir * treadT) / 2, -(i + 0.5) * tread]}>
+      <Panel key={`t${i}`} size={[w, treadT, tread]} radius={0.012} position={[0, topY(i) - treadT / 2, -(i + 0.5) * tread]}>
         {M('steps')}
       </Panel>,
     )
     // The riser closing the front of the drop below each tread. Going up, the
     // floor-level first tread needs none; going down, every tread has one.
     const riserY = down ? -(i + 0.5) * riser : (i - 0.5) * riser
-    if (down || i >= 1) {
+    if ((down || i >= 1) && showRisers) {
       steps.push(
-        <Panel key={`r${i}`} size={[w - 0.02, riser, riserT]} radius={0.003} position={[0, riserY, -i * tread + riserT / 2]}>
+        <Panel key={`r${i}`} size={[w - 0.01, riser + treadT, 0.035]} radius={0.004} position={[0, riserY, -i * tread]}>
           {M('risers')}
         </Panel>,
       )
