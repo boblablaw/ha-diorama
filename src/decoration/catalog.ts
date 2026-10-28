@@ -141,7 +141,9 @@ const up = (value: number, step: number) => round2(Math.ceil(value / step - 1e-9
 
 const range = (id: string, d: number, min: number, max: number, step: number) => {
   if (step >= 1) return { min, max }
-  const low = Math.max(Math.min(min, d * 0.25), VERTICAL.has(id) ? 0 : 0.05)
+  // A parameter that asks for a negative minimum means it (an offset that
+  // swings both ways, a height that drops below the floor), so keep it.
+  const low = min < 0 ? down(min, step) : Math.max(Math.min(min, d * 0.25), VERTICAL.has(id) ? 0 : 0.05)
   const high = Math.max(max, d * 3)
   const top = VERTICAL.has(id) ? Math.min(high, CEILING_LIMIT_M) : high
   return { min: down(low, step), max: up(top, step) }
