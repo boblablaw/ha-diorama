@@ -25,17 +25,22 @@ const MAX_DEPTH = 6
 export function standHeight(item: DecorationConfig, all: DecorationConfig[], depth = 0): number {
   const kind = decorationKind(item.kind)
   if (!kind) return 0
-  if (kind.mount !== 'floor') return mountHeight(kind, item.params)
+  // A free raise/lower offset any kind can expose, moving the whole piece up
+  // or down from where it would otherwise sit.
+  const elevation = kind.params.some(x => x.id === 'elevation')
+    ? paramValue(kind, item.params, 'elevation', item.variant)
+    : 0
+  if (kind.mount !== 'floor') return mountHeight(kind, item.params) + elevation
   // Some things are built into a run of units rather than standing on the
   // floor: an oven halfway up a tall cabinet, a radiator off the skirting.
   const base = kind.params.some(x => x.id === 'base') ? liveParam(kind, item.params, 'base', item.variant) : 0
   const support = item.on ? all.find(d => d.id === item.on) : undefined
   const supportKind = support ? decorationKind(support.kind) : undefined
   if (!support || !supportKind || !isSupport(supportKind) || depth >= MAX_DEPTH) {
-    return base + (canRide(kind) && !item.floor ? paramValue(kind, item.params, 'lift') : 0)
+    return base + elevation + (canRide(kind) && !item.floor ? paramValue(kind, item.params, 'lift') : 0)
   }
   const top = standHeight(support, all, depth + 1) + surfaceTop(supportKind, support.params, support.variant)
-  return top + base - builtInDepth(kind)
+  return top + base + elevation - builtInDepth(kind)
 }
 
 // Is `point` on the usable part of this item's top?

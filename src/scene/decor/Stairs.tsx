@@ -69,12 +69,11 @@ export default function StairsModel({ kind, item }: { kind: DecorationKind; item
     </Panel>
   ))
 
-  // A free vertical offset so the whole flight can be slid up or down to seat
-  // it on the floor or drop it into a stairwell.
-  const elev = p('elevation')
-
+  // The 'elevation' (Raise / lower) param is applied to the whole piece by
+  // standHeight, so the flight can be seated on the floor or dropped into a
+  // stairwell without anything extra here.
   return (
-    <group position={[0, elev, 0]}>
+    <group>
       {steps}
       {stringers}
     </group>
