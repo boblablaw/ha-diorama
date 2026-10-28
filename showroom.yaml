@@ -773,6 +773,14 @@ rooms:
       - [29, 33.5]
       - [23.5, 33.5]
 
+  - id: shelf_led
+    name: "LED shelf"
+    points:
+      - [29.5, 29.5]
+      - [34.5, 29.5]
+      - [34.5, 33.5]
+      - [29.5, 33.5]
+
 decorations:
   - id: light_ceiling_focus
     kind: light_ceiling
@@ -1973,3 +1981,13 @@ decorations:
     room: plants_new
     position: [27.5, 31.5]
     variant: monstera
+  - id: shelf_led_oak
+    kind: shelf_led
+    room: shelf_led
+    position: [31, 32]
+    variant: oak
+  - id: shelf_led_walnut
+    kind: shelf_led
+    room: shelf_led
+    position: [33, 30.6]
+    variant: walnut

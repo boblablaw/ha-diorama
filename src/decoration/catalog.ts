@@ -711,6 +711,24 @@ export const DECORATION_KINDS: DecorationKind[] = [
     { diffuser: 'matte', channel: 'metal' },
     LIGHT_SIGNALS,
   ),
+  kind(
+    'shelf_led',
+    'light',
+    'LED shelf',
+    'wall',
+    // A floating "Lakka" board with an LED under its front edge. As a light it
+    // glows and casts with its entity, and several shelves can be bound to one
+    // switch (one device entry listing them all).
+    [width(1.1, 0.4, 2), depth(0.26, 0.15, 0.4), height(1.4, 0.4, 2.3)],
+    { shelf: SCANDI.oak, led: LIGHT_SHADE_COLOR },
+    { shelf: 'wood', led: 'matte' },
+    LIGHT_SIGNALS,
+    [
+      { id: 'oak', label: 'Oak' },
+      { id: 'white', label: 'White', colors: { shelf: '#f3f1ec' }, materials: { shelf: 'matte' } },
+      { id: 'walnut', label: 'Walnut', colors: { shelf: '#4a3528' }, materials: { shelf: 'wood' } },
+    ],
+  ),
 
   // Seating
   kind(

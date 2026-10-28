@@ -11,6 +11,7 @@ import TableLamp from '#/scene/decor/TableLamps.tsx'
 import { TABLE_LAMPS } from '#/scene/decor/tableLampSpecs.ts'
 import WallLamp from '#/scene/decor/WallLamps.tsx'
 import { WALL_LAMPS } from '#/scene/decor/wallLampSpecs.ts'
+import { FloatingShelf } from '#/scene/decor/Storage.tsx'
 import { LAMP_SHADOW_MAP_PX, LAMP_SHADOW_RADIUS } from '#/constants.ts'
 import { CEILING_HEIGHT_M, LAMP_KEY_SHARE, LAMP_OUTPUT, LAMP_THROUGH_SHARE, LIGHT_POINT_INTENSITY } from '#/theme.ts'
 import type { DecorationConfig } from '#/types.ts'
@@ -264,6 +265,29 @@ export default function LightModel({ kind, item, state }: Props) {
       body = (
         <group position={[0, height, 0]}>
           <WallLamp style={style} k={k} up={up} out={out} c={c} m={m} state={state} />
+        </group>
+      )
+      break
+    }
+    case 'shelf_led': {
+      // A floating Lakka board with an LED tube under its front edge, washing
+      // down the wall. The board follows the shelf colour; the LED glows and
+      // casts with the light's state.
+      const w = p('width')
+      const d = p('depth')
+      const height = p('height')
+      const front = d - 0.03
+      glowAt = [0, height - 0.09, Math.max(d * 0.3, 0.08)]
+      glowSpread = w
+      const shelfFill = (slot: string) => <BaseMaterial color={c(slot)} material={m(slot)} />
+      body = (
+        <group position={[0, height, 0]}>
+          <FloatingShelf w={w} d={d} M={shelfFill} />
+          {/* The LED tube tucked under the front lip. */}
+          <mesh position={[0, -0.03, front]} rotation={[0, 0, Math.PI / 2]} userData={{ transmits: true }}>
+            <capsuleGeometry args={[0.009, Math.max(w - 0.05, 0.05), 6, 16]} />
+            <ShadeMaterial color={c('led')} material={m('led')} state={state} />
+          </mesh>
         </group>
       )
       break
