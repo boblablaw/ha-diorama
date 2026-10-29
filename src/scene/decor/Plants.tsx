@@ -606,13 +606,13 @@ function boston(width: number, top: number, reach: number): Parts {
 function hangingFern(width: number, top: number): Parts {
   const f: Parts = { leaves: new Foliage(), stems: new Foliage() }
   const rnd = random(53)
-  const count = 32
+  const count = 52
   const crown = new Vector3(0, top, 0)
   for (let i = 0; i < count; i++) {
     const a = rnd() * Math.PI * 2 // the full circle, so no side is bare
-    const from = 0.45 + rnd() * 0.8
-    const to = -1.2 - rnd() * 0.35
-    const length = width * (1.3 + rnd() * 0.9)
+    const from = 0.4 + rnd() * 0.85
+    const to = -1.2 - rnd() * 0.4
+    const length = width * (1.45 + rnd() * 1.05)
     // Start a little out from the centre along the frond's own heading, so the
     // crown is a full mound rather than every frond from one point.
     const start = crown
@@ -627,23 +627,23 @@ function hangingFern(width: number, top: number): Parts {
       undefined,
       4,
     )
-    const pairs = clamp(Math.round(length / 0.014), 18, 60)
-    const longest = clamp(length * 0.075, 0.018, 0.05)
+    const pairs = clamp(Math.round(length / 0.011), 22, 72)
+    const longest = clamp(length * 0.09, 0.022, 0.058)
     for (let j = 0; j < pairs; j++) {
-      const s = 0.1 + (0.89 * (j + 0.5)) / pairs
+      const s = 0.08 + (0.9 * (j + 0.5)) / pairs
       const { at, toward } = frond.sample(s)
       const side = new Vector3().crossVectors(toward, UP)
       if (side.lengthSq() < 1e-6) side.set(1, 0, 0)
       side.normalize()
       const up = new Vector3().crossVectors(side, toward).normalize()
-      const ll = longest * Math.min(1, (s - 0.08) * 5) * (1 - 0.85 * s * s)
+      const ll = longest * Math.min(1, (s - 0.06) * 5) * (1 - 0.8 * s * s)
       if (ll < 0.004) continue
       for (const sign of [-1, 1]) {
         const dir = toward
           .clone()
-          .multiplyScalar(Math.cos(1.35))
-          .addScaledVector(side, sign * Math.sin(1.35))
-        f.leaves.blade({ length: ll, width: ll * 0.3, outline: PINNULE, droop: ll * 0.12, fold: 0.2, rows: 3, cols: 1 }, place(at, dir, up))
+          .multiplyScalar(Math.cos(1.3))
+          .addScaledVector(side, sign * Math.sin(1.3))
+        f.leaves.blade({ length: ll, width: ll * 0.34, outline: PINNULE, droop: ll * 0.12, fold: 0.2, rows: 3, cols: 1 }, place(at, dir, up))
       }
     }
   }
