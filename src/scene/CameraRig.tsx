@@ -348,17 +348,23 @@ export default function CameraRig({
   // over the page as a back/forward navigation swipe, which closed the diorama
   // dashboard and jumped back to Overview mid pan. The card handles two
   // fingers itself — pan and zoom — so it claims the gesture: calling
-  // preventDefault on a multi touch move tells WebKit the page owns the touch
-  // and suppresses the swipe. One finger is left alone so the dashboard still
-  // scrolls, and pointer events still fire, so the camera gesture is
-  // unaffected. Desktop never sees touch moves.
+  // preventDefault on a multi touch event tells WebKit the page owns the touch
+  // and suppresses the swipe. It is done on touchstart as well as touchmove
+  // because the left edge back gesture commits on the first touch, before any
+  // move, so cancelling only the move is too late there. One finger is left
+  // alone so the dashboard still scrolls, and pointer events still fire, so the
+  // camera gesture is unaffected. Desktop never sees touch events.
   useEffect(() => {
     if (!canvas) return
-    const onTouchMove = (event: TouchEvent) => {
+    const claimMultiTouch = (event: TouchEvent) => {
       if (event.touches.length >= 2) event.preventDefault()
     }
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false })
-    return () => canvas.removeEventListener('touchmove', onTouchMove)
+    canvas.addEventListener('touchstart', claimMultiTouch, { passive: false })
+    canvas.addEventListener('touchmove', claimMultiTouch, { passive: false })
+    return () => {
+      canvas.removeEventListener('touchstart', claimMultiTouch)
+      canvas.removeEventListener('touchmove', claimMultiTouch)
+    }
   }, [canvas])
 
   // A click is not a drag. The controls take any press as the start of a
