@@ -674,6 +674,37 @@ function hangingPothos(width: number, top: number, reach: number, trail: number)
   return f
 }
 
+// A pothos in a hanging basket: a full mound of leaves over the rim and vines
+// spilling over and trailing down on every side, so it reads the same all the
+// way round rather than facing one way like the wall pocket version. Shared by
+// the trailing and flowering baskets.
+function hangingBasketVines(width: number, top: number, trail: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage(), markings: new Foliage() }
+  const rnd = random(23)
+  const L = clamp(width * 0.22, 0.05, 0.09)
+  const put = pothosLeaf(f)
+  const crown = new Vector3(0, top - 0.01, 0)
+  // A mound of leaves over the rim, all the way round.
+  const mound = 24
+  for (let i = 0; i < mound; i++) {
+    const a = rnd() * Math.PI * 2
+    const r = width * (0.12 + rnd() * 0.32)
+    const from = crown.clone().add(new Vector3(Math.sin(a) * r, (rnd() - 0.5) * 0.02, Math.cos(a) * r))
+    const end = from.clone().addScaledVector(heading(a, 0.25 + rnd() * 0.6), L * (0.8 + rnd() * 0.6))
+    f.stems.stem([from.toArray() as Vec3, end.toArray() as Vec3], 0.003)
+    put(L * (0.85 + rnd() * 0.3), place(end, heading(a + (rnd() - 0.5) * 0.6, 0.1 + rnd() * 0.4)), i)
+  }
+  // Vines over the rim at even headings round the circle, trailing down.
+  const vines = 15
+  for (let v = 0; v < vines; v++) {
+    const a = (v / vines) * Math.PI * 2 + (rnd() - 0.5) * 0.22
+    const r = width * 0.5
+    const rim = new Vector3(Math.sin(a) * r, top + 0.01, Math.cos(a) * r)
+    vine(f, put, L, crown, rim, a, trail * (0.5 + 0.6 * rnd()), v)
+  }
+  return f
+}
+
 // String of pearls, Curio rowleyanus, in a wall pocket: thread thin stems
 // strung with round green beads, spilling over the rim and hanging straight
 // down, a few shorter ones still lying on top.
@@ -1188,16 +1219,15 @@ export function HangingPlant({
   const basketH = r * 0.8
   const rimY = -drop
   const baseY = rimY - basketH
-  const reach = r * 0.95
   const grown = useMemo(
-    () => grow(kind === 'fern' ? hangingFern(width, basketH) : hangingPothos(width, basketH, reach, trail)),
-    [kind, width, basketH, reach, trail],
+    () => grow(kind === 'fern' ? hangingFern(width, basketH) : hangingBasketVines(width, basketH, trail)),
+    [kind, width, basketH, trail],
   )
   // The flowering basket's blooms, scattered over and just below the rim.
   const blooms = useMemo(() => {
     if (kind !== 'flower') return [] as { x: number; y: number; z: number; s: number }[]
     const rnd = random(41)
-    return Array.from({ length: 16 }, () => {
+    return Array.from({ length: 26 }, () => {
       const a = rnd() * Math.PI * 2
       const rr = r * (0.65 + rnd() * 0.4)
       return { x: Math.cos(a) * rr, y: basketH - 0.03 - rnd() * 0.14, z: Math.sin(a) * rr, s: 0.018 + rnd() * 0.014 }

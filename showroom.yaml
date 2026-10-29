@@ -41,8 +41,8 @@ rooms:
     name: "Wall light"
     points:
       - [0, 9.15]
-      - [2.6, 9.15]
-      - [2.6, 10.55]
+      - [3.4, 9.15]
+      - [3.4, 10.55]
       - [0, 10.55]
   - id: light_strip
     name: "Floor LED strip"
@@ -2052,3 +2052,8 @@ decorations:
     room: hanging_plants
     position: [55, 31]
     variant: flower
+  - id: updown_light_demo
+    kind: updown_light
+    room: light_wall
+    position: [3.0, 9.15]
+    rotation: 180

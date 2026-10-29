@@ -325,6 +325,40 @@ export default function LightModel({ kind, item, state }: Props) {
       )
       break
     }
+    case 'updown_light': {
+      // A Govee outdoor up/down wall light: a ribbed dark box on the wall that
+      // throws light from the top and bottom, with an RGB strip down each of
+      // its two sides. All four emitters glow and cast with the light's state.
+      const h = p('size') // the fixture's height
+      const height = p('height') // where its middle sits on the wall
+      const w = Math.min(0.11, h * 0.5)
+      const d = Math.min(0.09, h * 0.42)
+      glowAt = [0, height, d + 0.03]
+      body = (
+        <group position={[0, height, 0]}>
+          {/* The ribbed metal body, stood off the wall along z. */}
+          <mesh position={[0, 0, d / 2]}>
+            <boxGeometry args={[w, h, d]} />
+            <BaseMaterial color={c('body')} material={m('body')} />
+          </mesh>
+          {/* The up and down beams, open at the top and bottom. */}
+          {[1, -1].map(s => (
+            <mesh key={`beam${s}`} position={[0, s * (h / 2 - 0.004), d / 2]} userData={{ transmits: true }}>
+              <boxGeometry args={[w * 0.72, 0.01, d * 0.72]} />
+              <ShadeMaterial color={c('beam')} material={m('beam')} state={state} />
+            </mesh>
+          ))}
+          {/* An RGB strip down each side. */}
+          {[1, -1].map(s => (
+            <mesh key={`strip${s}`} position={[s * (w / 2 + 0.001), 0, d / 2]} userData={{ transmits: true }}>
+              <boxGeometry args={[0.006, h * 0.8, d * 0.5]} />
+              <ShadeMaterial color={c('strip')} material={m('strip')} state={state} />
+            </mesh>
+          ))}
+        </group>
+      )
+      break
+    }
     default:
       body = null
   }
