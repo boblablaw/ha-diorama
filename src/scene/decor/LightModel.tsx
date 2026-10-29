@@ -276,16 +276,21 @@ export default function LightModel({ kind, item, state }: Props) {
       const w = p('width')
       const d = p('depth')
       const height = p('height')
-      const front = d - 0.03
-      glowAt = [0, height - 0.09, Math.max(d * 0.3, 0.08)]
+      const front = d - 0.05
+      // The Slab board sits on y in [0, 0.05] from the group origin, so its
+      // underside is y = 0. The tube (radius 0.009) is lifted so its top edge
+      // sits just inside the board, leaving a glowing line flush under it with
+      // no gap.
+      const ledR = 0.009
+      glowAt = [0, height - 0.02, front]
       glowSpread = w
       const shelfFill = (slot: string) => <BaseMaterial color={c(slot)} material={m(slot)} />
       body = (
         <group position={[0, height, 0]}>
           <FloatingShelf w={w} d={d} M={shelfFill} />
-          {/* The LED tube tucked under the front lip. */}
-          <mesh position={[0, -0.03, front]} rotation={[0, 0, Math.PI / 2]} userData={{ transmits: true }}>
-            <capsuleGeometry args={[0.009, Math.max(w - 0.05, 0.05), 6, 16]} />
+          {/* The LED tube tucked up under the front of the board. */}
+          <mesh position={[0, -ledR + 0.006, front]} rotation={[0, 0, Math.PI / 2]} userData={{ transmits: true }}>
+            <capsuleGeometry args={[ledR, Math.max(w - 0.05, 0.05), 6, 16]} />
             <ShadeMaterial color={c('led')} material={m('led')} state={state} />
           </mesh>
         </group>

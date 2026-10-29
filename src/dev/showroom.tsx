@@ -6,7 +6,8 @@
 //
 // window.probe() returns the last second's frame times and what the renderer
 // drew on the last frame, for reading from the console.
-import type { CardConfig, HomeAssistant } from '#/types.ts'
+import type { CardConfig, DeviceConfig, HomeAssistant } from '#/types.ts'
+import { decorationKind } from '#/decoration/catalog.ts'
 import yaml from '../../showroom.yaml?raw'
 import { Scene } from 'three'
 
@@ -125,8 +126,38 @@ requestAnimationFrame(tick)
 
 await import('#/main.tsx')
 
+const config = parse(yaml)
+
+// There is no Home Assistant here, so nothing is bound to an entity and every
+// device shows its "off" look. To exercise the lit states, bind each
+// controllable decoration to a mock device and drive them all from one button.
+// Only families that actually show a state are wired — furniture and plants
+// have nothing to switch.
+const ACTIVE = new Set(['light', 'cover', 'media', 'climate', 'kitchen', 'laundry', 'bathroom', 'security', 'utility'])
+const DOMAIN: Record<string, string> = { light: 'light', cover: 'cover', media: 'media_player', climate: 'climate', security: 'binary_sensor' }
+const mockDevices: DeviceConfig[] = (config.decorations ?? [])
+  .filter(d => ACTIVE.has(decorationKind(d.kind)?.family ?? ''))
+  .map(d => {
+    const family = decorationKind(d.kind)?.family ?? ''
+    return { entity_id: `${DOMAIN[family] ?? 'switch'}.demo_${d.id}`, room: d.room, position: d.position, decorations: [d.id] }
+  })
+config.devices = [...(config.devices ?? []), ...mockDevices]
+
+const statesFor = (on: boolean): Record<string, unknown> => {
+  const states: Record<string, unknown> = {}
+  for (const dev of mockDevices) {
+    const cover = dev.entity_id.startsWith('cover.')
+    states[dev.entity_id] = {
+      entity_id: dev.entity_id,
+      state: cover ? (on ? 'open' : 'closed') : on ? 'on' : 'off',
+      attributes: { brightness: on ? 255 : 1, current_position: on ? 100 : 0, color_temp_kelvin: 2700 },
+    }
+  }
+  return states
+}
+
 const hass = {
-  states: {},
+  states: statesFor(false),
   callService: () => Promise.resolve(),
   themes: { darkMode: false },
 } as unknown as HomeAssistant
@@ -135,6 +166,21 @@ const card = document.createElement('diorama-card') as HTMLElement & {
   hass: HomeAssistant
 }
 card.style.cssText = 'display:block;width:100vw;height:100vh'
-card.setConfig({ ...parse(yaml), aspect_ratio: `${innerWidth} / ${innerHeight}` } as CardConfig)
+card.setConfig({ ...config, aspect_ratio: `${innerWidth} / ${innerHeight}` } as CardConfig)
 card.hass = hass
 document.body.appendChild(card)
+
+// One button toggles every mock device on and off together, so the lit look of
+// lights, covers and appliances can be checked without Home Assistant.
+let lit = false
+const toggle = document.createElement('button')
+toggle.textContent = 'Lights: off'
+toggle.style.cssText =
+  'position:fixed;top:12px;left:12px;z-index:10;padding:8px 14px;border:0;border-radius:8px;' +
+  'font:600 13px system-ui;background:#1f6feb;color:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4)'
+toggle.onclick = () => {
+  lit = !lit
+  toggle.textContent = lit ? 'Lights: on' : 'Lights: off'
+  card.hass = { ...hass, states: statesFor(lit) } as HomeAssistant
+}
+document.body.appendChild(toggle)
