@@ -3107,9 +3107,11 @@ export function footprint(
   params: Record<string, number> | undefined,
   variant?: string,
 ): [number, number] {
-  // A strip lies along its length, which is the x of its model, so the plan
-  // has to read the same way round or the two disagree by a right angle.
-  if (kind.family === 'light' && kind.params.some(x => x.id === 'length')) {
+  // A strip or rail lies along its length, which is the x of its model, so the
+  // plan has to read the same way round or the two disagree by a right angle.
+  // This is for pieces whose one planar dimension is the length — light strips,
+  // railings — not those that also have a width, like a bed.
+  if (kind.params.some(x => x.id === 'length') && !kind.params.some(x => x.id === 'width')) {
     return [paramValue(kind, params, 'length', variant), 0.08]
   }
   const screen = kind.params.some(x => x.id === 'inches')
