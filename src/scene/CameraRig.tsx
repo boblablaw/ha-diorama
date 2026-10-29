@@ -344,6 +344,23 @@ export default function CameraRig({
     return () => controls.removeEventListener('start', onStart)
   }, [controls])
 
+  // iOS (WKWebView, as in the Home Assistant app) reads a two finger drag
+  // over the page as a back/forward navigation swipe, which closed the diorama
+  // dashboard and jumped back to Overview mid pan. The card handles two
+  // fingers itself — pan and zoom — so it claims the gesture: calling
+  // preventDefault on a multi touch move tells WebKit the page owns the touch
+  // and suppresses the swipe. One finger is left alone so the dashboard still
+  // scrolls, and pointer events still fire, so the camera gesture is
+  // unaffected. Desktop never sees touch moves.
+  useEffect(() => {
+    if (!canvas) return
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length >= 2) event.preventDefault()
+    }
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => canvas.removeEventListener('touchmove', onTouchMove)
+  }, [canvas])
+
   // A click is not a drag. The controls take any press as the start of a
   // turn, so a click on a lamp nudged the camera a hair, and that counted
   // as leaving the opening view. The controls listen on an element around
