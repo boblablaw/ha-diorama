@@ -121,8 +121,10 @@ function plainPaint(mesh: Mesh): MeshStandardMaterial | null {
 type Copy = { geometry: BufferGeometry; matrix: Matrix4; color: Color }
 
 // Every copy that takes the same paint, apart from its color, which the
-// vertices carry.
-type Batch = { key: string; roughness: number; metalness: number; side: Side; copies: Copy[] }
+// vertices carry. Parts that cast shadows and parts that do not are kept apart,
+// so a non-casting part (dense foliage) bakes into its own mesh and is left out
+// of the shadow pass.
+type Batch = { key: string; roughness: number; metalness: number; side: Side; cast: boolean; copies: Copy[] }
 
 const place = new Matrix4()
 const turn = new Matrix3()
@@ -135,10 +137,11 @@ function batches(group: Group, hidden: Mesh[]) {
     const mesh = object as Mesh
     const paint = plainPaint(mesh)
     if (!paint) return
-    const key = `${paint.roughness}|${paint.metalness}|${paint.side}`
+    const cast = mesh.castShadow
+    const key = `${paint.roughness}|${paint.metalness}|${paint.side}|${cast}`
     let batch = found.get(key)
     if (!batch) {
-      batch = { key, roughness: paint.roughness, metalness: paint.metalness, side: paint.side, copies: [] }
+      batch = { key, roughness: paint.roughness, metalness: paint.metalness, side: paint.side, cast, copies: [] }
       found.set(key, batch)
     }
     if (mesh instanceof InstancedMesh) {
@@ -260,7 +263,7 @@ function bake(scene: Scene, ids: Set<string>): Baked {
       }
       const mesh = new Mesh(merge(batch.copies), material)
       mesh.name = `merged:${room ?? ''}`
-      mesh.castShadow = true
+      mesh.castShadow = batch.cast
       mesh.receiveShadow = true
       // A press on it is one on the floor of the room, as it was on the parts.
       if (room) mesh.userData.room = room

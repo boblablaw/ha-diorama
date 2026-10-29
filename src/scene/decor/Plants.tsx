@@ -25,12 +25,12 @@ function grow(parts: Parts): Grown {
 }
 
 // The meshes of a plant, one per color, freed once the plant changes.
-function Growth({ grown, paint, flat = [] }: { grown: Grown; paint: Paint; flat?: string[] }) {
+function Growth({ grown, paint, flat = [], shadow = true }: { grown: Grown; paint: Paint; flat?: string[]; shadow?: boolean }) {
   useEffect(() => () => Object.values(grown).forEach(g => g.dispose()), [grown])
   return (
     <>
       {Object.entries(grown).map(([slot, geometry]) => (
-        <mesh key={slot} geometry={geometry} castShadow>
+        <mesh key={slot} geometry={geometry} castShadow={shadow}>
           {paint(slot, !flat.includes(slot))}
         </mesh>
       ))}
@@ -606,7 +606,7 @@ function boston(width: number, top: number, reach: number): Parts {
 function hangingFern(width: number, top: number): Parts {
   const f: Parts = { leaves: new Foliage(), stems: new Foliage() }
   const rnd = random(53)
-  const count = 52
+  const count = 40
   const crown = new Vector3(0, top, 0)
   for (let i = 0; i < count; i++) {
     const a = rnd() * Math.PI * 2 // the full circle, so no side is bare
@@ -627,7 +627,7 @@ function hangingFern(width: number, top: number): Parts {
       undefined,
       4,
     )
-    const pairs = clamp(Math.round(length / 0.011), 22, 72)
+    const pairs = clamp(Math.round(length / 0.016), 16, 44)
     const longest = clamp(length * 0.09, 0.022, 0.058)
     for (let j = 0; j < pairs; j++) {
       const s = 0.08 + (0.9 * (j + 0.5)) / pairs
@@ -643,7 +643,7 @@ function hangingFern(width: number, top: number): Parts {
           .clone()
           .multiplyScalar(Math.cos(1.3))
           .addScaledVector(side, sign * Math.sin(1.3))
-        f.leaves.blade({ length: ll, width: ll * 0.34, outline: PINNULE, droop: ll * 0.12, fold: 0.2, rows: 3, cols: 1 }, place(at, dir, up))
+        f.leaves.blade({ length: ll, width: ll * 0.34, outline: PINNULE, droop: ll * 0.12, fold: 0.2, rows: 2, cols: 1 }, place(at, dir, up))
       }
     }
   }
@@ -1257,7 +1257,9 @@ export function HangingPlant({
       <group position={[0, baseY, 0]}>
         <Pot r={r} h={basketH} shape="basket" paint={paint} />
         <Wilt at={basketH - 0.02} wilt={wilt}>
-          <Growth grown={grown} paint={paint} flat={kind === 'fern' ? [] : ['stems']} />
+          {/* Dense foliage skips the shadow pass — a big saving when a room
+              full of hanging plants is zoomed into. */}
+          <Growth grown={grown} paint={paint} flat={kind === 'fern' ? [] : ['stems']} shadow={false} />
         </Wilt>
         {blooms.map((b, i) => (
           <mesh key={`fl${i}`} geometry={bloomGeometry} position={[b.x, b.y, b.z]} scale={b.s}>
