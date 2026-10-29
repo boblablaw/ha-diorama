@@ -644,6 +644,18 @@ export const DECORATION_KINDS: DecorationKind[] = [
     ],
   ),
   kind(
+    'light_chandelier',
+    'light',
+    'Chandelier',
+    'ceiling',
+    // Size is the span across the arms; cord is the drop from the ceiling to
+    // the hub the arms radiate from.
+    [size(0.9, 0.4, 1.6), p('cord', 'Cord length', 0.4, 0.1, 1.5)],
+    { arms: '#c6a24e', globe: PENDANT_OPAL_COLOR, canopy: '#c6a24e' },
+    { arms: 'metal', globe: 'matte', canopy: 'metal' },
+    LIGHT_SIGNALS,
+  ),
+  kind(
     'light_wall',
     'light',
     'Wall light',

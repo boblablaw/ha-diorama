@@ -798,6 +798,14 @@ rooms:
       - [56, 34]
       - [50.5, 34]
 
+  - id: chandelier
+    name: "Chandelier"
+    points:
+      - [56.5, 29.5]
+      - [62, 29.5]
+      - [62, 34]
+      - [56.5, 34]
+
 decorations:
   - id: light_ceiling_focus
     kind: light_ceiling
@@ -2057,3 +2065,7 @@ decorations:
     room: light_wall
     position: [3.0, 9.15]
     rotation: 180
+  - id: chandelier_demo
+    kind: light_chandelier
+    room: chandelier
+    position: [59, 31.5]

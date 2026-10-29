@@ -12,6 +12,8 @@ import { TABLE_LAMPS } from '#/scene/decor/tableLampSpecs.ts'
 import WallLamp from '#/scene/decor/WallLamps.tsx'
 import { WALL_LAMPS } from '#/scene/decor/wallLampSpecs.ts'
 import { FloatingShelf } from '#/scene/decor/Storage.tsx'
+import { Rod } from '#/scene/decor/parts.tsx'
+import { Vector3 } from 'three'
 import { LAMP_SHADOW_MAP_PX, LAMP_SHADOW_RADIUS } from '#/constants.ts'
 import { CEILING_HEIGHT_M, LAMP_KEY_SHARE, LAMP_OUTPUT, LAMP_THROUGH_SHARE, LIGHT_POINT_INTENSITY } from '#/theme.ts'
 import type { DecorationConfig } from '#/types.ts'
@@ -321,6 +323,72 @@ export default function LightModel({ kind, item, state }: Props) {
             <capsuleGeometry args={[0.016, Math.max(length - 0.032, 0.05), 8, 20]} />
             <ShadeMaterial color={c('diffuser')} material={m('diffuser')} state={state} />
           </mesh>
+        </group>
+      )
+      break
+    }
+    case 'light_chandelier': {
+      // A mid-century brass "mobile": a canopy and downrod to a hub, from which
+      // slim arms radiate at mixed up and down angles, each ending in an opal
+      // globe that glows with the light's state.
+      const k = p('size') / 0.9 // size is the arm span across
+      const cord = p('cord')
+      const ceil = CEILING_HEIGHT_M
+      const hubY = ceil - cord
+      const globeR = 0.052 * k
+      const armR = 0.0075 * k
+      glowAt = [0, hubY, 0]
+      const brass = (slot = 'arms') => <BaseMaterial color={c(slot)} material={m(slot)} />
+      // Each arm: azimuth round the circle, rise (up +, down -) and length.
+      // Evenly spaced round the circle and all the same length, with the tilt
+      // alternating up and down so it still reads as a mobile.
+      const arms: [number, number, number][] = [
+        [0, 22, 0.4],
+        [60, -18, 0.4],
+        [120, 22, 0.4],
+        [180, -18, 0.4],
+        [240, 22, 0.4],
+        [300, -18, 0.4],
+      ]
+      const hub = new Vector3(0, hubY, 0)
+      body = (
+        <group>
+          {/* Canopy against the ceiling. */}
+          <mesh position={[0, ceil - 0.02, 0]}>
+            <cylinderGeometry args={[0.07, 0.08, 0.04, SEG]} />
+            {brass('canopy')}
+          </mesh>
+          {/* Downrod to the hub. */}
+          <mesh position={[0, (ceil + hubY) / 2, 0]}>
+            <cylinderGeometry args={[armR, armR, Math.max(ceil - hubY, 0.001), SEG]} />
+            {brass()}
+          </mesh>
+          {/* Hub and the little nub beneath it. */}
+          <mesh position={[0, hubY, 0]}>
+            <sphereGeometry args={[0.03 * k, SEG, SEG / 2]} />
+            {brass()}
+          </mesh>
+          <mesh position={[0, hubY - 0.032 * k, 0]}>
+            <sphereGeometry args={[0.018 * k, SEG, SEG / 2]} />
+            {brass()}
+          </mesh>
+          {arms.map(([az, rise, len], i) => {
+            const a = (az * Math.PI) / 180
+            const r = (rise * Math.PI) / 180
+            const dir = new Vector3(Math.sin(a) * Math.cos(r), Math.sin(r), Math.cos(a) * Math.cos(r))
+            const end = hub.clone().addScaledVector(dir, len * k)
+            return (
+              <group key={i}>
+                <Rod from={hub} to={end} r={armR}>
+                  {brass()}
+                </Rod>
+                <mesh position={end.toArray()} userData={{ transmits: true }}>
+                  <sphereGeometry args={[globeR, SEG, SEG / 2]} />
+                  <ShadeMaterial color={c('globe')} material={m('globe')} state={state} />
+                </mesh>
+              </group>
+            )
+          })}
         </group>
       )
       break
