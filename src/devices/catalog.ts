@@ -21,8 +21,8 @@ const PLACEABLE_DOMAINS = [
 
 // Sensors are noisy. Only these device classes are offered.
 const SENSOR_CLASSES: Record<string, string[]> = {
-  sensor: ['temperature', 'humidity'],
-  binary_sensor: ['door', 'window', 'opening', 'motion', 'occupancy'],
+  sensor: ['temperature', 'humidity', 'moisture'],
+  binary_sensor: ['door', 'window', 'opening', 'motion', 'occupancy', 'moisture'],
 }
 
 export const domainOf = (entityId: string) => entityId.split('.')[0]
