@@ -608,7 +608,7 @@ function boston(width: number, top: number, reach: number): Parts {
 function hangingFern(width: number, top: number): Parts {
   const f: Parts = { leaves: new Foliage(), stems: new Foliage() }
   const rnd = random(53)
-  const count = 26
+  const count = 20
   const crown = new Vector3(0, top, 0)
   for (let i = 0; i < count; i++) {
     const a = rnd() * Math.PI * 2 // the full circle, so no side is bare
@@ -621,7 +621,7 @@ function hangingFern(width: number, top: number): Parts {
       .clone()
       .addScaledVector(heading(a, 0), width * (0.1 + rnd() * 0.25))
       .add(new Vector3(0, (rnd() - 0.5) * 0.02, 0))
-    const frond = arch(start, a, from, to, length, 1.1)
+    const frond = arch(start, a, from, to, length, 1.1, 10)
     f.stems.stem(
       frond.points.map(p => p.toArray() as Vec3),
       0.0022,
@@ -629,8 +629,8 @@ function hangingFern(width: number, top: number): Parts {
       undefined,
       4,
     )
-    const pairs = clamp(Math.round(length / 0.022), 12, 28)
-    const longest = clamp(length * 0.1, 0.024, 0.062)
+    const pairs = clamp(Math.round(length / 0.028), 9, 20)
+    const longest = clamp(length * 0.11, 0.026, 0.066)
     for (let j = 0; j < pairs; j++) {
       const s = 0.08 + (0.9 * (j + 0.5)) / pairs
       const { at, toward } = frond.sample(s)
