@@ -1840,7 +1840,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'Railing',
     'floor',
     [
-      length(2, 0.4, 8),
+      length(2, 0.4, 12),
       height(1, 0.7, 1.3),
       // Round ball finials cap the end posts of the indoor styles, each side
       // on its own.

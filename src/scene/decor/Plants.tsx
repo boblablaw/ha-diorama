@@ -600,6 +600,56 @@ function boston(width: number, top: number, reach: number): Parts {
   return f
 }
 
+// A Boston fern in a hanging basket: fronds arching up out of a centred crown
+// and draping down on every side, so it reads the same all the way round
+// rather than facing one way like the wall pocket version.
+function hangingFern(width: number, top: number): Parts {
+  const f: Parts = { leaves: new Foliage(), stems: new Foliage() }
+  const rnd = random(53)
+  const count = 32
+  const crown = new Vector3(0, top, 0)
+  for (let i = 0; i < count; i++) {
+    const a = rnd() * Math.PI * 2 // the full circle, so no side is bare
+    const from = 0.45 + rnd() * 0.8
+    const to = -1.2 - rnd() * 0.35
+    const length = width * (1.3 + rnd() * 0.9)
+    // Start a little out from the centre along the frond's own heading, so the
+    // crown is a full mound rather than every frond from one point.
+    const start = crown
+      .clone()
+      .addScaledVector(heading(a, 0), width * (0.1 + rnd() * 0.25))
+      .add(new Vector3(0, (rnd() - 0.5) * 0.02, 0))
+    const frond = arch(start, a, from, to, length, 1.1)
+    f.stems.stem(
+      frond.points.map(p => p.toArray() as Vec3),
+      0.0022,
+      0.001,
+      undefined,
+      4,
+    )
+    const pairs = clamp(Math.round(length / 0.014), 18, 60)
+    const longest = clamp(length * 0.075, 0.018, 0.05)
+    for (let j = 0; j < pairs; j++) {
+      const s = 0.1 + (0.89 * (j + 0.5)) / pairs
+      const { at, toward } = frond.sample(s)
+      const side = new Vector3().crossVectors(toward, UP)
+      if (side.lengthSq() < 1e-6) side.set(1, 0, 0)
+      side.normalize()
+      const up = new Vector3().crossVectors(side, toward).normalize()
+      const ll = longest * Math.min(1, (s - 0.08) * 5) * (1 - 0.85 * s * s)
+      if (ll < 0.004) continue
+      for (const sign of [-1, 1]) {
+        const dir = toward
+          .clone()
+          .multiplyScalar(Math.cos(1.35))
+          .addScaledVector(side, sign * Math.sin(1.35))
+        f.leaves.blade({ length: ll, width: ll * 0.3, outline: PINNULE, droop: ll * 0.12, fold: 0.2, rows: 3, cols: 1 }, place(at, dir, up))
+      }
+    }
+  }
+  return f
+}
+
 // A pothos in a wall pocket: a mound of leaves over the rim, and vines
 // spilling over the front and sides and hanging `trail` below it.
 function hangingPothos(width: number, top: number, reach: number, trail: number): Parts {
@@ -1140,7 +1190,7 @@ export function HangingPlant({
   const baseY = rimY - basketH
   const reach = r * 0.95
   const grown = useMemo(
-    () => grow(kind === 'fern' ? boston(width, basketH, reach * 0.5) : hangingPothos(width, basketH, reach, trail)),
+    () => grow(kind === 'fern' ? hangingFern(width, basketH) : hangingPothos(width, basketH, reach, trail)),
     [kind, width, basketH, reach, trail],
   )
   // The flowering basket's blooms, scattered over and just below the rim.
