@@ -15,6 +15,7 @@ import GardenModel from '#/scene/decor/Garden.tsx'
 import LightModel from '#/scene/decor/LightModel.tsx'
 import OutdoorModel from '#/scene/decor/Outdoor.tsx'
 import StairsModel from '#/scene/decor/Stairs.tsx'
+import RailingModel from '#/scene/decor/Railing.tsx'
 import FireplaceWallModel from '#/scene/decor/FireplaceWall.tsx'
 import { sameState, type ItemState } from '#/scene/decor/state.ts'
 import type { DecorationKind } from '#/decoration/catalog.ts'
@@ -98,6 +99,7 @@ const KIND_MODELS: Record<string, FamilyModel> = {
   louvred_pergola: GardenModel,
   sauna: GardenModel,
   stairs: StairsModel,
+  railing: RailingModel,
   fireplace_wall: FireplaceWallModel,
 }
 

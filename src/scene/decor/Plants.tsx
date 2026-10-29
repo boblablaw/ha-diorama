@@ -1,5 +1,5 @@
 import { Foliage, arch, heading, outline, place, random, roll, type Blade } from '#/scene/decor/foliage.ts'
-import { SEG } from '#/scene/decor/parts.tsx'
+import { Rod, SEG } from '#/scene/decor/parts.tsx'
 import type { Vec3 } from '#/scene/decor/points.ts'
 import { useEffect, useMemo, type ReactNode } from 'react'
 import { BufferGeometry, CatmullRomCurve3, IcosahedronGeometry, LatheGeometry, Matrix4, Vector2, Vector3 } from 'three'
@@ -1108,6 +1108,83 @@ export function WallPlant({
       <Wilt at={top - 0.025} wilt={wilt}>
         <Growth grown={grown} paint={paint} flat={kind === 'pearls' ? ['stems', 'leaves'] : ['stems']} />
       </Wilt>
+    </group>
+  )
+}
+
+// A plant in a basket hung from the ceiling by three cords. Ceiling items sit
+// at the ceiling, so this is built downward from the origin: a small mount,
+// the cords, then the basket `drop` below it with foliage spilling over the
+// rim. Styles: a trailing pothos, a Boston fern of arching fronds, and a
+// flowering basket with blooms over the edge.
+export function HangingPlant({
+  style,
+  wilt = 0,
+  width,
+  drop,
+  trail,
+  paint,
+}: {
+  style: string
+  width: number
+  drop: number
+  trail: number
+  paint: Paint
+  // 0 watered to 1 dry.
+  wilt?: number
+}) {
+  const kind = style === 'fern' || style === 'flower' ? style : 'trailing'
+  const r = width / 2
+  const basketH = r * 0.8
+  const rimY = -drop
+  const baseY = rimY - basketH
+  const reach = r * 0.95
+  const grown = useMemo(
+    () => grow(kind === 'fern' ? boston(width, basketH, reach * 0.5) : hangingPothos(width, basketH, reach, trail)),
+    [kind, width, basketH, reach, trail],
+  )
+  // The flowering basket's blooms, scattered over and just below the rim.
+  const blooms = useMemo(() => {
+    if (kind !== 'flower') return [] as { x: number; y: number; z: number; s: number }[]
+    const rnd = random(41)
+    return Array.from({ length: 16 }, () => {
+      const a = rnd() * Math.PI * 2
+      const rr = r * (0.65 + rnd() * 0.4)
+      return { x: Math.cos(a) * rr, y: basketH - 0.03 - rnd() * 0.14, z: Math.sin(a) * rr, s: 0.018 + rnd() * 0.014 }
+    })
+  }, [kind, r, basketH])
+  const bloomGeometry = useMemo(() => new IcosahedronGeometry(1, 1), [])
+  useEffect(() => () => bloomGeometry.dispose(), [bloomGeometry])
+
+  const hook = new Vector3(0, -0.06, 0)
+  const cords = [0, 1, 2].map(i => {
+    const a = (i / 3) * Math.PI * 2 + 0.4
+    return new Vector3(Math.cos(a) * r * 0.88, rimY + basketH * 0.85, Math.sin(a) * r * 0.88)
+  })
+
+  return (
+    <group>
+      {/* The ceiling mount the cords hang from. */}
+      <mesh position={[0, -0.015, 0]}>
+        <cylinderGeometry args={[0.028, 0.034, 0.03, SEG]} />
+        {paint('cord')}
+      </mesh>
+      {cords.map((pt, i) => (
+        <Rod key={`c${i}`} from={hook} to={pt} r={0.0035}>
+          {paint('cord')}
+        </Rod>
+      ))}
+      <group position={[0, baseY, 0]}>
+        <Pot r={r} h={basketH} shape="basket" paint={paint} />
+        <Wilt at={basketH - 0.02} wilt={wilt}>
+          <Growth grown={grown} paint={paint} flat={kind === 'fern' ? [] : ['stems']} />
+        </Wilt>
+        {blooms.map((b, i) => (
+          <mesh key={`fl${i}`} geometry={bloomGeometry} position={[b.x, b.y, b.z]} scale={b.s}>
+            {paint('flowers')}
+          </mesh>
+        ))}
+      </group>
     </group>
   )
 }

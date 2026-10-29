@@ -774,6 +774,30 @@ rooms:
       - [34.5, 33.5]
       - [29.5, 33.5]
 
+  - id: railing
+    name: "Railing"
+    points:
+      - [35, 29.5]
+      - [43, 29.5]
+      - [43, 34]
+      - [35, 34]
+
+  - id: round_tables
+    name: "Round dining"
+    points:
+      - [43.5, 29.5]
+      - [50, 29.5]
+      - [50, 34]
+      - [43.5, 34]
+
+  - id: hanging_plants
+    name: "Hanging plants"
+    points:
+      - [50.5, 29.5]
+      - [56, 29.5]
+      - [56, 34]
+      - [50.5, 34]
+
 decorations:
   - id: light_ceiling_focus
     kind: light_ceiling
@@ -1980,3 +2004,51 @@ decorations:
     room: shelf_led
     position: [33, 30.6]
     variant: walnut
+  - id: railing_indoor
+    kind: railing
+    room: railing
+    position: [37, 31.5]
+    variant: indoor
+  - id: railing_outdoor
+    kind: railing
+    room: railing
+    position: [40.5, 31.5]
+    variant: outdoor
+  - id: dining_round_wood
+    kind: dining_table
+    room: round_tables
+    position: [45, 31.5]
+    variant: round_wood
+  - id: dining_round_glass
+    kind: dining_table
+    room: round_tables
+    position: [47.5, 31.5]
+    variant: round_glass
+  - id: dining_round_wicker
+    kind: dining_table
+    room: round_tables
+    position: [46.25, 33]
+    variant: round_wicker
+  - id: railing_turned
+    kind: railing
+    room: railing
+    position: [38, 33]
+    variant: turned
+    params:
+      finial_left: 1
+      finial_right: 1
+  - id: plant_hanging_trailing
+    kind: plant_hanging
+    room: hanging_plants
+    position: [52, 31]
+    variant: trailing
+  - id: plant_hanging_fern
+    kind: plant_hanging
+    room: hanging_plants
+    position: [53.5, 31]
+    variant: fern
+  - id: plant_hanging_flower
+    kind: plant_hanging
+    room: hanging_plants
+    position: [55, 31]
+    variant: flower

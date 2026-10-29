@@ -18,9 +18,9 @@ import {
   VIOK_TOP,
   VIOK_TOP_EDGE,
 } from '#/scene/decor/diningTableSpecs.ts'
-import { Slab } from '#/scene/decor/parts.tsx'
-import { useMemo, type ReactNode } from 'react'
-import { BoxGeometry, ExtrudeGeometry, Quaternion, Shape, Vector3 } from 'three'
+import { Glass, SEG, Slab } from '#/scene/decor/parts.tsx'
+import { useEffect, useMemo, type ReactNode } from 'react'
+import { BoxGeometry, ExtrudeGeometry, LatheGeometry, Quaternion, Shape, Vector2, Vector3 } from 'three'
 
 type Props = {
   style: string
@@ -286,8 +286,86 @@ function Spider({ w, d, h, M }: Omit<Props, 'style'>) {
   )
 }
 
+// A woven drum base: a gently barrelled column, ribbed round the belly so it
+// reads as wicker, capped top and bottom.
+function WickerDrum({ R, H, M }: { R: number; H: number; M: Props['M'] }) {
+  const geometry = useMemo(() => {
+    const r = Math.max(0.2, R * 0.46)
+    const pts: Vector3[] = []
+    const v = (x: number, y: number) => pts.push(new Vector3(x, y, 0))
+    v(0.001, 0)
+    v(r * 0.98, 0)
+    const N = 160
+    for (let i = 0; i <= N; i++) {
+      const y = (H * i) / N
+      const belly = 0.9 + 0.1 * Math.sin((y / H) * Math.PI)
+      const rib = 0.0016 * Math.sin((y / 0.012) * Math.PI * 2)
+      v(r * belly + rib, y)
+    }
+    v(r * 0.98, H)
+    v(0.001, H)
+    return new LatheGeometry(
+      pts.map(pt => new Vector2(pt.x, pt.y)),
+      SEG * 2,
+    )
+  }, [R, H])
+  useEffect(() => () => geometry.dispose(), [geometry])
+  return (
+    <mesh geometry={geometry} castShadow receiveShadow>
+      {M('frame')}
+    </mesh>
+  )
+}
+
+// A round table. The width is the diameter; depth is ignored. The top is solid
+// for the wood style and clear glass for the others. The base is either a
+// turned central pedestal or a woven wicker drum.
+function Round({ w, h, M, glass, base = 'pedestal' }: { w: number; h: number; M: Props['M']; glass: boolean; base?: 'pedestal' | 'wicker' }) {
+  const R = w / 2
+  const topT = glass ? 0.014 : 0.04
+  const colR = Math.max(0.05, R * 0.09)
+  const footR = Math.max(0.24, R * 0.42)
+  const footH = 0.03
+  const capR = Math.max(0.14, R * 0.2)
+  const capH = 0.02
+  const colTop = h - topT - capH
+  return (
+    <group>
+      {base === 'wicker' ? (
+        <WickerDrum R={R} H={h - topT} M={M} />
+      ) : (
+        <>
+          {/* Splayed foot on the floor. */}
+          <mesh position={[0, footH / 2, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[footR * 0.86, footR, footH, SEG]} />
+            {M('frame')}
+          </mesh>
+          {/* Turned central column. */}
+          <mesh position={[0, (footH + colTop) / 2, 0]} castShadow>
+            <cylinderGeometry args={[colR, colR * 1.2, colTop - footH, SEG]} />
+            {M('frame')}
+          </mesh>
+          {/* Cap plate the top sits on. */}
+          <mesh position={[0, colTop + capH / 2, 0]} castShadow>
+            <cylinderGeometry args={[capR, capR * 0.8, capH, SEG]} />
+            {M('frame')}
+          </mesh>
+        </>
+      )}
+      {/* The round top: clear glass, or a solid disc. */}
+      <mesh position={[0, h - topT / 2, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[R, R, topT, SEG * 2]} />
+        {glass ? <Glass color="#dde7ea" opacity={0.3} /> : M('top')}
+      </mesh>
+    </group>
+  )
+}
+
 export default function DiningTable({ style, ...props }: Props) {
   if (style === 'deva') return <Deva {...props} />
   if (style === 'spider') return <Spider {...props} />
+  if (style === 'round_wood') return <Round {...props} glass={false} />
+  if (style === 'round_glass') return <Round {...props} glass={true} />
+  if (style === 'round_wicker') return <Round {...props} glass={true} base="wicker" />
   return <NewViok {...props} />
 }

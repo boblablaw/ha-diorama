@@ -46,11 +46,20 @@ function parse(text: string): CardConfig {
       key = k
     } else if (indent === 4) {
       const [k, v] = body.split(/:\s?(.*)/)
-      if (v) item![k] = scalar(v)
-      else item![k] = []
+      item![k] = v ? scalar(v) : undefined
       key = k
-    } else if (indent === 6 && body.startsWith('- ')) {
-      ;(item![key] as unknown[]).push(scalar(body.slice(2)))
+    } else if (indent === 6) {
+      // A nested block under the indent-4 key: either a list of `- item` lines
+      // (like a room's points) or a map of `key: value` lines (like params).
+      // The first child decides which.
+      if (body.startsWith('- ')) {
+        if (!Array.isArray(item![key])) item![key] = []
+        ;(item![key] as unknown[]).push(scalar(body.slice(2)))
+      } else {
+        const [k, v] = body.split(/:\s?(.*)/)
+        if (typeof item![key] !== 'object' || item![key] === null) item![key] = {}
+        ;(item![key] as Record<string, unknown>)[k] = scalar(v)
+      }
     }
   }
   return config as unknown as CardConfig

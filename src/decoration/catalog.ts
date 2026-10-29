@@ -999,6 +999,31 @@ export const DECORATION_KINDS: DecorationKind[] = [
         colors: { top: '#9b7e5f', frame: '#87694b' },
         materials: { top: 'wood', frame: 'wood' },
       },
+      {
+        // Round styles use the width as the diameter; depth is ignored.
+        id: 'round_wood',
+        label: 'Round Oak Pedestal',
+        // 120 cm across, 75 cm tall.
+        params: { width: 1.2, depth: 1.2, height: 0.75 },
+        colors: { top: SCANDI.oak, frame: '#b78f61' },
+        materials: { top: 'wood', frame: 'wood' },
+      },
+      {
+        id: 'round_glass',
+        label: 'Round Glass Pedestal',
+        // 120 cm across, 74 cm tall.
+        params: { width: 1.2, depth: 1.2, height: 0.74 },
+        colors: { top: '#dde7ea', frame: '#8d9094' },
+        materials: { top: 'matte', frame: 'metal' },
+      },
+      {
+        id: 'round_wicker',
+        label: 'Round Wicker Base',
+        // 120 cm across, 74 cm tall; glass top on a woven drum.
+        params: { width: 1.2, depth: 1.2, height: 0.74 },
+        colors: { top: '#dde7ea', frame: '#c6a878' },
+        materials: { top: 'matte', frame: 'wood' },
+      },
     ],
   ),
   kind(
@@ -1810,6 +1835,40 @@ export const DECORATION_KINDS: DecorationKind[] = [
     { wall: 'matte' },
   ),
   kind(
+    'railing',
+    'decor',
+    'Railing',
+    'floor',
+    [
+      length(2, 0.4, 8),
+      height(1, 0.7, 1.3),
+      // Round ball finials cap the end posts of the indoor styles, each side
+      // on its own.
+      only(flag('finial_left', 'Left finial'), ['indoor', 'turned']),
+      only(flag('finial_right', 'Right finial'), ['indoor', 'turned']),
+    ],
+    // The indoor style's slots: a wood handrail on near-black metal posts
+    // and balusters.
+    { rail: SCANDI.oak, posts: SCANDI.ink, balusters: SCANDI.ink },
+    { rail: 'wood', posts: 'metal', balusters: 'metal' },
+    undefined,
+    [
+      { id: 'indoor', label: 'Indoor · Metal Balusters' },
+      {
+        id: 'turned',
+        label: 'Indoor · Turned Balusters',
+        colors: { rail: SCANDI.oak, posts: '#b78f61', balusters: '#cbb088' },
+        materials: { rail: 'wood', posts: 'wood', balusters: 'wood' },
+      },
+      {
+        id: 'outdoor',
+        label: 'Outdoor · Wood Deck',
+        colors: { rail: '#8a6b47', posts: '#7a5e3f', balusters: '#8a6b47' },
+        materials: { rail: 'wood', posts: 'wood', balusters: 'wood' },
+      },
+    ],
+  ),
+  kind(
     'rug',
     'decor',
     'Rug',
@@ -1970,6 +2029,45 @@ export const DECORATION_KINDS: DecorationKind[] = [
         colors: { pot: '#2a2a2a', soil: '#6b5238', stems: '#6e8e48', leaves: '#62a040', markings: '#62a040' },
         materials: { pot: 'metal', soil: 'matte', stems: 'matte', leaves: 'wood', markings: 'matte' },
         params: { width: 0.28 },
+      },
+    ],
+  ),
+  kind(
+    'plant_hanging',
+    'decor',
+    'Hanging plant',
+    'ceiling',
+    [
+      width(0.3, 0.2, 0.6),
+      p('drop', 'Drop', 1, 0.4, 2, 0.05),
+      // The fern fills its basket rather than trailing, so it hides the slider.
+      only(p('trail', 'Trail', 0.6, 0.1, 1.5, 0.05), ['trailing', 'flower']),
+      dryBelow(),
+    ],
+    {
+      pot: '#b7935f',
+      soil: '#3c332b',
+      stems: '#7aa648',
+      leaves: '#5a9440',
+      markings: '#e3d268',
+      cord: '#6b5a44',
+      flowers: '#e6719c',
+    },
+    { pot: 'wood', soil: 'matte', stems: 'matte', leaves: 'wood', markings: 'wood', cord: 'fabric', flowers: 'matte' },
+    READOUT,
+    [
+      { id: 'trailing', label: 'Trailing pothos' },
+      {
+        id: 'fern',
+        label: 'Boston fern',
+        colors: { pot: '#2a2a2a', leaves: '#62a040', stems: '#6e8e48' },
+        materials: { pot: 'metal', leaves: 'wood', stems: 'matte' },
+      },
+      {
+        id: 'flower',
+        label: 'Flowering basket',
+        colors: { pot: '#c0703f', leaves: '#4f8f3e', stems: '#5c7a3e', flowers: '#e86a9e' },
+        materials: { pot: 'terracotta', flowers: 'matte' },
       },
     ],
   ),

@@ -3,7 +3,7 @@ import { useEased, useTravel } from '#/scene/decor/ease.ts'
 import { Material, SEG, Slab, Tube } from '#/scene/decor/parts.tsx'
 import { Books, Clock, Curtain, Mirror, Rug } from '#/scene/decor/Furnishings.tsx'
 import Piano from '#/scene/decor/Piano.tsx'
-import { FloorPlant, ShelfPlant, WallPlant } from '#/scene/decor/Plants.tsx'
+import { FloorPlant, HangingPlant, ShelfPlant, WallPlant } from '#/scene/decor/Plants.tsx'
 import type { ItemState } from '#/scene/decor/state.ts'
 import type { DecorationConfig } from '#/types.ts'
 import { useLayoutEffect, useMemo, useRef } from 'react'
@@ -168,6 +168,17 @@ export default function DecorModel({ kind, item, state }: Props) {
       )
     case 'plant_wall':
       return <WallPlant style={style} width={p('width')} trail={p('trail')} wilt={thirst} paint={paint} />
+    case 'plant_hanging':
+      return (
+        <HangingPlant
+          style={style}
+          width={p('width')}
+          drop={p('drop')}
+          trail={p('trail')}
+          wilt={thirst}
+          paint={paint}
+        />
+      )
     case 'wall_mirror': {
       const s = p('size')
       return (
