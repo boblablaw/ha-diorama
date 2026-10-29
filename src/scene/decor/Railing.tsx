@@ -132,15 +132,17 @@ export default function RailingModel({ kind, item }: { kind: DecorationKind; ite
     const x = -L / 2 + postT / 2 + step * (i + 0.5)
     nodes.push(
       turned ? (
-        <mesh key={`b${i}`} geometry={spindle!} position={[x, balBottom, 0]} castShadow>
+        // Balusters skip the shadow pass — on a long run there are many, and
+        // their fine shadows read as noise. The posts and rails still cast.
+        <mesh key={`b${i}`} geometry={spindle!} position={[x, balBottom, 0]} castShadow={false}>
           {M('balusters')}
         </mesh>
       ) : outdoor ? (
-        <Panel key={`b${i}`} size={[balT, balH, balT]} radius={0.004} position={[x, balBottom, 0]}>
+        <Panel key={`b${i}`} size={[balT, balH, balT]} radius={0.004} position={[x, balBottom, 0]} shadow={false}>
           {M('balusters')}
         </Panel>
       ) : (
-        <Bar key={`b${i}`} length={balH} radius={balT / 2} position={[x, balBottom + balH / 2, 0]}>
+        <Bar key={`b${i}`} length={balH} radius={balT / 2} position={[x, balBottom + balH / 2, 0]} shadow={false}>
           {M('balusters')}
         </Bar>
       ),

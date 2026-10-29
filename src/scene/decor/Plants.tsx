@@ -1,5 +1,6 @@
 import { Foliage, arch, heading, outline, place, random, roll, type Blade } from '#/scene/decor/foliage.ts'
 import { Rod, SEG } from '#/scene/decor/parts.tsx'
+import { Detailed } from '@react-three/drei'
 import type { Vec3 } from '#/scene/decor/points.ts'
 import { useEffect, useMemo, type ReactNode } from 'react'
 import { BufferGeometry, CatmullRomCurve3, IcosahedronGeometry, LatheGeometry, Matrix4, Vector2, Vector3 } from 'three'
@@ -605,10 +606,10 @@ function boston(width: number, top: number, reach: number): Parts {
 // A Boston fern in a hanging basket: fronds arching up out of a centred crown
 // and draping down on every side, so it reads the same all the way round
 // rather than facing one way like the wall pocket version.
-function hangingFern(width: number, top: number): Parts {
+function hangingFern(width: number, top: number, full = true): Parts {
   const f: Parts = { leaves: new Foliage(), stems: new Foliage() }
   const rnd = random(53)
-  const count = 20
+  const count = full ? 20 : 10
   const crown = new Vector3(0, top, 0)
   for (let i = 0; i < count; i++) {
     const a = rnd() * Math.PI * 2 // the full circle, so no side is bare
@@ -621,7 +622,7 @@ function hangingFern(width: number, top: number): Parts {
       .clone()
       .addScaledVector(heading(a, 0), width * (0.1 + rnd() * 0.25))
       .add(new Vector3(0, (rnd() - 0.5) * 0.02, 0))
-    const frond = arch(start, a, from, to, length, 1.1, 10)
+    const frond = arch(start, a, from, to, length, 1.1, full ? 10 : 7)
     f.stems.stem(
       frond.points.map(p => p.toArray() as Vec3),
       0.0022,
@@ -629,7 +630,7 @@ function hangingFern(width: number, top: number): Parts {
       undefined,
       4,
     )
-    const pairs = clamp(Math.round(length / 0.028), 9, 20)
+    const pairs = clamp(Math.round(length / (full ? 0.028 : 0.05)), full ? 9 : 5, full ? 20 : 11)
     const longest = clamp(length * 0.11, 0.026, 0.066)
     for (let j = 0; j < pairs; j++) {
       const s = 0.08 + (0.9 * (j + 0.5)) / pairs
@@ -1221,8 +1222,12 @@ export function HangingPlant({
   const basketH = r * 0.8
   const rimY = -drop
   const baseY = rimY - basketH
-  const grown = useMemo(
-    () => grow(kind === 'fern' ? hangingFern(width, basketH) : hangingBasketVines(width, basketH, trail)),
+  // The fern carries two detail levels so it can drop to the cheaper one once
+  // the camera pulls back (LOD); the trailing and flowering baskets have one.
+  const fernFull = useMemo(() => (kind === 'fern' ? grow(hangingFern(width, basketH, true)) : null), [kind, width, basketH])
+  const fernLow = useMemo(() => (kind === 'fern' ? grow(hangingFern(width, basketH, false)) : null), [kind, width, basketH])
+  const vines = useMemo(
+    () => (kind === 'fern' ? null : grow(hangingBasketVines(width, basketH, trail))),
     [kind, width, basketH, trail],
   )
   // The flowering basket's blooms, scattered over and just below the rim.
@@ -1259,9 +1264,20 @@ export function HangingPlant({
       <group position={[0, baseY, 0]}>
         <Pot r={r} h={basketH} shape="basket" paint={paint} />
         <Wilt at={basketH - 0.02} wilt={wilt}>
-          {/* Dense foliage skips the shadow pass — a big saving when a room
-              full of hanging plants is zoomed into. */}
-          <Growth grown={grown} paint={paint} flat={kind === 'fern' ? [] : ['stems']} shadow={false} />
+          {/* Foliage skips the shadow pass. The fern also drops to a lighter
+              build once the camera is more than a few metres away. */}
+          {kind === 'fern' ? (
+            <Detailed distances={[0, 2.8]}>
+              <group>
+                <Growth grown={fernFull!} paint={paint} shadow={false} />
+              </group>
+              <group>
+                <Growth grown={fernLow!} paint={paint} shadow={false} />
+              </group>
+            </Detailed>
+          ) : (
+            <Growth grown={vines!} paint={paint} flat={['stems']} shadow={false} />
+          )}
         </Wilt>
         {blooms.map((b, i) => (
           <mesh key={`fl${i}`} geometry={bloomGeometry} position={[b.x, b.y, b.z]} scale={b.s}>

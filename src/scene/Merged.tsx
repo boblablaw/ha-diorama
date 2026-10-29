@@ -40,7 +40,9 @@ import {
 // In the editor every piece is pickable, so nothing there is merged.
 
 // Kinds that move on their own, with no device behind them.
-const LIVE_KINDS = new Set(['wall_clock'])
+// Kinds kept out of the merge so they can do their own thing each frame: the
+// clock ticks, and the hanging plants swap detail by camera distance (LOD).
+const LIVE_KINDS = new Set(['wall_clock', 'plant_hanging'])
 
 const DECORATION = 'decoration:'
 

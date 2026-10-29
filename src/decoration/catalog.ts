@@ -2051,9 +2051,11 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'ceiling',
     [
       width(0.3, 0.2, 0.6),
-      // How far below the ceiling the whole plant hangs — raises it up tight to
-      // the ceiling or lowers it down into the room, cords following.
-      p('drop', 'Raise / lower', 1, 0.1, 2.3, 0.05),
+      // Drop is the cord length — how far the basket hangs below its mount.
+      p('drop', 'Drop', 1, 0.2, 2, 0.05),
+      // Raise / lower moves the mount point itself, to hang it from a beam or
+      // pergola below the ceiling; applied to the whole piece by standHeight.
+      p('elevation', 'Raise / lower', 0, -1.8, 0.3, 0.05, ''),
       // The fern fills its basket rather than trailing, so it hides the slider.
       only(p('trail', 'Trail', 0.6, 0.1, 1.5, 0.05), ['trailing', 'flower']),
       dryBelow(),

@@ -125,6 +125,7 @@ export function Slab({
   holes,
   front,
   taper,
+  shadow = true,
   children,
 }: {
   size: Vec3
@@ -132,6 +133,9 @@ export function Slab({
   bevel?: number
   position?: Vec3
   rotation?: Vec3
+  // Whether the part casts a shadow. Off for fine or incidental parts that
+  // would only cost the shadow pass, like railing balusters.
+  shadow?: boolean
   // How much smaller the bottom face is than the top, as a scale, the sides
   // leaning in toward it. It shrinks toward the middle across and toward
   // the back, so a piece against the wall stays against it.
@@ -205,7 +209,7 @@ export function Slab({
     return geo
   }, [w, h, d, radius, bevel, cut, front, taper])
   return (
-    <mesh geometry={geometry} position={position} rotation={rotation} castShadow receiveShadow>
+    <mesh geometry={geometry} position={position} rotation={rotation} castShadow={shadow} receiveShadow>
       {children}
     </mesh>
   )
@@ -510,16 +514,18 @@ export function Bar({
   radius,
   position = [0, 0, 0],
   rotation = [0, 0, 0],
+  shadow = true,
   children,
 }: {
   length: number
   radius: number
   position?: Vec3
   rotation?: Vec3
+  shadow?: boolean
   children: ReactNode
 }) {
   return (
-    <mesh position={position} rotation={rotation} castShadow>
+    <mesh position={position} rotation={rotation} castShadow={shadow}>
       <capsuleGeometry args={[radius, Math.max(length - radius * 2, 0.001), 8, 20]} />
       {children}
     </mesh>
@@ -532,16 +538,18 @@ export function Panel({
   position = [0, 0, 0],
   rotation,
   radius = 0.02,
+  shadow = true,
   children,
 }: {
   size: Vec3
   position?: Vec3
   rotation?: Vec3
   radius?: number
+  shadow?: boolean
   children: ReactNode
 }) {
   return (
-    <Slab size={size} radius={radius} bevel={0.006} position={position} rotation={rotation}>
+    <Slab size={size} radius={radius} bevel={0.006} position={position} rotation={rotation} shadow={shadow}>
       {children}
     </Slab>
   )
