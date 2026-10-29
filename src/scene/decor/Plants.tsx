@@ -25,7 +25,9 @@ function grow(parts: Parts): Grown {
 }
 
 // The meshes of a plant, one per color, freed once the plant changes.
-function Growth({ grown, paint, flat = [], shadow = true }: { grown: Grown; paint: Paint; flat?: string[]; shadow?: boolean }) {
+// Plants never cast drop shadows — the fine foliage is costly in the shadow
+// pass and the shadows read as noise — so Growth defaults to not casting.
+function Growth({ grown, paint, flat = [], shadow = false }: { grown: Grown; paint: Paint; flat?: string[]; shadow?: boolean }) {
   useEffect(() => () => Object.values(grown).forEach(g => g.dispose()), [grown])
   return (
     <>
@@ -87,7 +89,7 @@ function Pot({ r, h, shape, paint }: { r: number; h: number; shape: PotShape; pa
   const soil = h * 0.9
   return (
     <group>
-      <mesh geometry={geometry} castShadow>
+      <mesh geometry={geometry}>
         {paint('pot', true)}
       </mesh>
       <mesh position={[0, soil - 0.005, 0]}>
