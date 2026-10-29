@@ -806,6 +806,14 @@ rooms:
       - [62, 34]
       - [56.5, 34]
 
+  - id: string_lights
+    name: "String lights"
+    points:
+      - [62.5, 29.5]
+      - [68, 29.5]
+      - [68, 34]
+      - [62.5, 34]
+
 decorations:
   - id: light_ceiling_focus
     kind: light_ceiling
@@ -2069,3 +2077,7 @@ decorations:
     kind: light_chandelier
     room: chandelier
     position: [59, 31.5]
+  - id: string_lights_demo
+    kind: string_lights
+    room: string_lights
+    position: [65.25, 31.75]

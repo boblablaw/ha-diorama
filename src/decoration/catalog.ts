@@ -644,6 +644,17 @@ export const DECORATION_KINDS: DecorationKind[] = [
     ],
   ),
   kind(
+    'string_lights',
+    'light',
+    'String lights',
+    'floor',
+    // Length is the run, height how high it hangs, sag how far the cord dips.
+    [length(3, 1, 12), p('height', 'Height', 2.2, 0.5, 2.6, 0.05), p('sag', 'Sag', 0.25, 0, 0.6, 0.02)],
+    { cord: '#2b2d30', bulb: LIGHT_SHADE_COLOR },
+    { cord: 'matte', bulb: 'matte' },
+    LIGHT_SIGNALS,
+  ),
+  kind(
     'light_chandelier',
     'light',
     'Chandelier',

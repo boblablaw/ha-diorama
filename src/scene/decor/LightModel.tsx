@@ -12,7 +12,7 @@ import { TABLE_LAMPS } from '#/scene/decor/tableLampSpecs.ts'
 import WallLamp from '#/scene/decor/WallLamps.tsx'
 import { WALL_LAMPS } from '#/scene/decor/wallLampSpecs.ts'
 import { FloatingShelf } from '#/scene/decor/Storage.tsx'
-import { Rod } from '#/scene/decor/parts.tsx'
+import { Rod, Tube } from '#/scene/decor/parts.tsx'
 import { Vector3 } from 'three'
 import { LAMP_SHADOW_MAP_PX, LAMP_SHADOW_RADIUS } from '#/constants.ts'
 import { CEILING_HEIGHT_M, LAMP_KEY_SHARE, LAMP_OUTPUT, LAMP_THROUGH_SHARE, LIGHT_POINT_INTENSITY } from '#/theme.ts'
@@ -323,6 +323,50 @@ export default function LightModel({ kind, item, state }: Props) {
             <capsuleGeometry args={[0.016, Math.max(length - 0.032, 0.05), 8, 20]} />
             <ShadeMaterial color={c('diffuser')} material={m('diffuser')} state={state} />
           </mesh>
+        </group>
+      )
+      break
+    }
+    case 'string_lights': {
+      // A run of patio string lights: a cord that sags between its ends in a
+      // shallow catenary, with evenly spaced bulbs hanging just below it that
+      // glow with the light's state. Length, height and sag are the sliders.
+      const L = p('length')
+      const height = p('height')
+      const sag = p('sag')
+      const n = Math.max(3, Math.round(L / 0.35)) // bulbs
+      const segs = Math.max(12, n * 2)
+      const yAt = (x: number) => height - sag * (1 - ((2 * x) / L) ** 2)
+      const cable: [number, number, number][] = Array.from({ length: segs + 1 }, (_, i) => {
+        const x = -L / 2 + (L * i) / segs
+        return [x, yAt(x), 0]
+      })
+      glowAt = [0, height - sag - 0.02, 0]
+      glowSpread = L
+      const bulbR = 0.028
+      body = (
+        <group>
+          <Tube points={cable} radius={0.004}>
+            <BaseMaterial color={c('cord')} material={m('cord')} />
+          </Tube>
+          {Array.from({ length: n }, (_, i) => {
+            const x = -L / 2 + (L * (i + 0.5)) / n
+            const y = yAt(x)
+            return (
+              <group key={i}>
+                {/* The socket collar on the cord. */}
+                <mesh position={[x, y - 0.01, 0]}>
+                  <cylinderGeometry args={[0.006, 0.006, 0.02, 8]} />
+                  <BaseMaterial color={c('cord')} material={m('cord')} />
+                </mesh>
+                {/* The hanging bulb. */}
+                <mesh position={[x, y - 0.035, 0]} userData={{ transmits: true }}>
+                  <sphereGeometry args={[bulbR, 12, 10]} />
+                  <ShadeMaterial color={c('bulb')} material={m('bulb')} state={state} />
+                </mesh>
+              </group>
+            )
+          })}
         </group>
       )
       break
