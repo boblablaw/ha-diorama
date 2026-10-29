@@ -608,13 +608,13 @@ function boston(width: number, top: number, reach: number): Parts {
 function hangingFern(width: number, top: number): Parts {
   const f: Parts = { leaves: new Foliage(), stems: new Foliage() }
   const rnd = random(53)
-  const count = 40
+  const count = 26
   const crown = new Vector3(0, top, 0)
   for (let i = 0; i < count; i++) {
     const a = rnd() * Math.PI * 2 // the full circle, so no side is bare
     const from = 0.4 + rnd() * 0.85
     const to = -1.2 - rnd() * 0.4
-    const length = width * (1.45 + rnd() * 1.05)
+    const length = width * (1.4 + rnd() * 0.85)
     // Start a little out from the centre along the frond's own heading, so the
     // crown is a full mound rather than every frond from one point.
     const start = crown
@@ -629,8 +629,8 @@ function hangingFern(width: number, top: number): Parts {
       undefined,
       4,
     )
-    const pairs = clamp(Math.round(length / 0.016), 16, 44)
-    const longest = clamp(length * 0.09, 0.022, 0.058)
+    const pairs = clamp(Math.round(length / 0.022), 12, 28)
+    const longest = clamp(length * 0.1, 0.024, 0.062)
     for (let j = 0; j < pairs; j++) {
       const s = 0.08 + (0.9 * (j + 0.5)) / pairs
       const { at, toward } = frond.sample(s)
