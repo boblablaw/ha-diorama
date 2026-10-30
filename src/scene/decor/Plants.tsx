@@ -473,6 +473,45 @@ function pothos(size: number, height: number, trail: number, potR: number, potH:
   return f
 }
 
+// Small oval leaves with a green top and a purple underside, the Tradescantia
+// signature. Each leaf is drawn twice: the green face, and a purple one just
+// beneath it so the underside reads purple from below.
+function tradescantiaLeaf(f: Parts) {
+  return (length: number, m: Matrix4, _seed: number) => {
+    const b: Blade = { length, width: length * 0.56, outline: OVAL, sinus: 0.04, fold: 0.2, droop: length * 0.08, rows: 8, cols: 3 }
+    f.leaves.blade(b, m)
+    f.markings.blade({ ...b, lift: -0.0009 }, m)
+  }
+}
+
+// Tradescantia: a low mound of small oval leaves over the pot and thin purple
+// stems spilling over the rim and trailing down, leaves purple underneath.
+function tradescantia(size: number, height: number, trail: number, potR: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage(), markings: new Foliage() }
+  const rnd = random(31)
+  const soil = potH * 0.9
+  const L = clamp(size * 0.16, 0.03, 0.06)
+  const put = tradescantiaLeaf(f)
+  const mound = Math.max(0.03, height - potH)
+  for (let i = 0; i < 16; i++) {
+    const a = i * 2.3
+    const rise = 0.5 + rnd() * 0.7
+    const from = new Vector3(Math.sin(a) * potR * 0.3, soil, Math.cos(a) * potR * 0.3)
+    const end = from.clone().addScaledVector(heading(a, rise), mound * (0.5 + rnd() * 0.5))
+    f.stems.stem([from.toArray() as Vec3, end.toArray() as Vec3], 0.0025)
+    put(L * (0.8 + rnd() * 0.4), roll(place(end, heading(a + (rnd() - 0.5) * 0.6, 0.1 + rnd() * 0.4)), 0), i)
+  }
+  const vines = 7
+  for (let v = 0; v < vines; v++) {
+    const a = v * ((Math.PI * 2) / vines) + rnd() * 0.4
+    const rim = heading(a, 0)
+      .multiplyScalar(potR * 1.05)
+      .setY(potH + 0.012)
+    vine(f, put, L, new Vector3(0, soil, 0).lerp(rim, 0.5).setY(soil), rim, a, trail * (0.6 + 0.4 * rnd()), v)
+  }
+  return f
+}
+
 // Chinese money plant, Pilea peperomioides: one upright stem with round,
 // slightly cupped leaves held from their middles on long stalks.
 function pilea(size: number, height: number, potH: number): Parts {
@@ -1113,7 +1152,7 @@ export function ShelfPlant({
   // 0 watered to 1 dry.
   wilt?: number
 }) {
-  const kind = style === 'pilea' || style === 'snake' ? style : 'pothos'
+  const kind = ['pilea', 'snake', 'tradescantia'].includes(style) ? style : 'pothos'
   const potR = kind === 'snake' ? clamp(size * 0.35, 0.05, 0.1) : clamp(size * 0.22, 0.05, 0.09)
   const potH = kind === 'pilea' ? potR * 1.5 : potR * 1.7
   const grown = useMemo(
@@ -1123,7 +1162,9 @@ export function ShelfPlant({
           ? pilea(size, height, potH)
           : kind === 'snake'
             ? snake(size, height, potR, potH)
-            : pothos(size, height, trail, potR, potH),
+            : kind === 'tradescantia'
+              ? tradescantia(size, height, trail, potR, potH)
+              : pothos(size, height, trail, potR, potH),
       ),
     [kind, size, height, trail, potR, potH],
   )

@@ -2009,7 +2009,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
       size(0.3, 0.12, 0.6),
       height(0.3, 0.12, 0.9),
       p('elevation', 'Raise / lower', 0.75, 0, 2.5, 0.05, ''),
-      only(p('trail', 'Trail', 0.6, 0.1, 1.5, 0.05), ['pothos']),
+      only(p('trail', 'Trail', 0.6, 0.1, 1.5, 0.05), ['pothos', 'tradescantia']),
       dryBelow(),
     ],
     { pot: SCANDI.offWhite, soil: '#3c332b', stems: '#7aa648', leaves: '#5a9440', markings: '#e3d268' },
@@ -2031,6 +2031,14 @@ export const DECORATION_KINDS: DecorationKind[] = [
         colors: { pot: '#9a9a96', soil: '#3c332b', stems: '#7aa648', leaves: '#3d6538', markings: '#a3b89c' },
         materials: { pot: 'concrete', soil: 'matte', stems: 'matte', leaves: 'wood', markings: 'wood' },
         params: { size: 0.2, height: 0.45 },
+      },
+      {
+        id: 'tradescantia',
+        label: 'Tradescantia',
+        // Green tops, purple undersides, purple trailing stems.
+        colors: { pot: '#b5754a', soil: '#3c332b', stems: '#6e3b52', leaves: '#4f7a46', markings: '#7a3f73' },
+        materials: { pot: 'terracotta', soil: 'matte', stems: 'matte', leaves: 'wood', markings: 'matte' },
+        params: { size: 0.3, height: 0.28, trail: 0.7 },
       },
     ],
   ),
