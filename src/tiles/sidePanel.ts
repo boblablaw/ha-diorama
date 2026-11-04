@@ -3,6 +3,8 @@ import { closest, closestClass, inPanelView } from '#/lib/panelView.ts'
 import { onRoomFilter, roomFilter } from '#/lib/roomFilter.ts'
 import { thisScreen } from '#/lib/screen.ts'
 import { autoGroups } from '#/tiles/auto.ts'
+import { entityName } from '#/tiles/actions.ts'
+import { entityArea } from '#/devices/catalog.ts'
 import type { CardConfig as PlanConfig, HomeAssistant } from '#/types.ts'
 
 type CardConfig = {
@@ -349,6 +351,20 @@ export class SidePanel extends HTMLElement {
     }
     // Each card knows its room, so only the room in view shows.
     const children = autoGroups(config).flatMap(group => group.cards.map(card => ({ card, room: group.room })))
+    // Home-section tiles (room === null) show in the whole-home view with no room heading, so a bare
+    // name like "Lights" loses its room. Prefix each with its area (unless the tile has its own name).
+    const hassForNames = this._hass
+    if (hassForNames) {
+      for (const { card, room } of children) {
+        const entity = card.entity
+        if (room !== null || typeof entity !== 'string' || card.name) continue
+        const areaId = entityArea(hassForNames, entity)
+        const areaName = areaId ? hassForNames.areas[areaId]?.name : undefined
+        if (!areaName) continue
+        const base = entityName({ entity }, hassForNames.states[entity])
+        if (base && !base.toLowerCase().startsWith(areaName.toLowerCase())) card.name = `${areaName} ${base}`
+      }
+    }
     this.side = children.map(({ card: child, room }) => {
       const card = this.create(child)
       const { columns, rows } = span(child, this._hass)
