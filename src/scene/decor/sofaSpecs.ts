@@ -102,5 +102,9 @@ export const THEATER_HEAD_T = 0.22
 // how thick the pad is.
 export const THEATER_FOOT_LEN = 0.52
 export const THEATER_FOOT_H2 = 0.16
+// How far the back leans back from upright, and how far the footrest tips down
+// from level at its far end, both in radians — the reclined pose.
+export const THEATER_RECLINE = 0.2
+export const THEATER_FOOT_DROP = 0.42
 // The LED accent strip along the front of the base.
 export const THEATER_LED_H = 0.03

@@ -130,6 +130,11 @@ function DecorationModel({
   const pressed = usePressed(item.kind, state?.presses)
   if (pressed && state) state = pressedState(item.kind, state)
   const kind = decorationKind(item.kind)
+  // A cover (door, sliding door, garage door) with no bound entity can be told
+  // to simply stand open, so it reads as open on the map without a sensor.
+  if (!state && kind?.family === 'cover' && paramValue(kind, item.params, 'open', item.variant) > 0.5) {
+    state = { on: true, level: 1, levels: { open: 1 }, glow: [0, 0, 0] }
+  }
   const travel = useMemo(() => (kind && onDrag ? travelOf(kind, item) : null), [kind, item, onDrag])
   const level = state?.levels.open ?? (state?.on ? 1 : 0)
   const { frame, level: real, dragged, sent, start } = useDrag(travel, level, state?.text, onDrag)

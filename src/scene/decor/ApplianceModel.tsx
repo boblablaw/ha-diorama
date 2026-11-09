@@ -450,7 +450,7 @@ export default function ApplianceModel({ kind, item, state, all }: Props) {
       // The height set is the top of the units. Set low, they shorten
       // rather than run into the floor.
       const top = p('height')
-      const cabH = Math.min(0.7, Math.max(top, 0.2))
+      const cabH = Math.min(p('cab_height'), Math.max(top, 0.2))
       const up = Math.max(0, cabH - top)
       const modules = counterModules(w, p('wide') > 0.5, p('grow'))
       const starts = modules.map((_, i) => modules.slice(0, i).reduce((a, b) => a + b, 0))

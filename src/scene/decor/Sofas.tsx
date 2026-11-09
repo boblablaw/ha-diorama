@@ -33,12 +33,14 @@ import {
   THEATER_CUP_DEPTH,
   THEATER_CUP_R,
   THEATER_DIV_W,
+  THEATER_FOOT_DROP,
   THEATER_FOOT_H,
   THEATER_FOOT_H2,
   THEATER_FOOT_LEN,
   THEATER_HEAD_H,
   THEATER_HEAD_T,
   THEATER_LED_H,
+  THEATER_RECLINE,
   THEATER_SEAT_H,
   THEATER_SEAT_MIN,
 } from '#/scene/decor/sofaSpecs.ts'
@@ -148,7 +150,18 @@ function sofaLayout(
   return { total, back, front: back + d, inner, seats, seatW, seatX, long, chaiseX }
 }
 
-type SofaProps = { w: number; d: number; reach: number; chaise: boolean; flip: boolean; seats?: number; M: Slot }
+type SofaProps = {
+  w: number
+  d: number
+  reach: number
+  chaise: boolean
+  flip: boolean
+  seats?: number
+  // Cinema recliner only: whether a padded arm stands between each pair of
+  // seats. Off makes it a continuous bench of cushions with only end arms.
+  dividers?: boolean
+  M: Slot
+}
 
 export function Sofa({ style, ...props }: SofaProps & { style: string }) {
   if (style === 'block') return <BlockSofa {...props} />
@@ -534,7 +547,7 @@ function RailSofa({ w, d, reach, chaise, flip, seats: want, M }: SofaProps) {
 // seats and at the ends, a tall back with a separate headrest, and a footrest
 // run out in front of every seat. It is deeper than the other sofas, since the
 // footrests reach forward of the front.
-function TheaterSofa({ w, d, seats: want, M }: SofaProps) {
+function TheaterSofa({ w, d, seats: want, dividers = true, M }: SofaProps) {
   const { back, front, inner, seats, seatW, seatX } = sofaLayout(
     w,
     d,
@@ -549,17 +562,24 @@ function TheaterSofa({ w, d, seats: want, M }: SofaProps) {
   const seatY = baseTop
   const seatBack = back + THEATER_BACK_T
   const armX = w / 2 - THEATER_ARM_W / 2
-  // The seat, back and headrest are a divider's width narrower than their
-  // share, to leave the gaps the arms stand in.
-  const seatInset = THEATER_DIV_W
   const cupZ = back + d * 0.34
+  // The seat, back and headrest tuck this far under the end arms, so no gap
+  // shows beside them. The footrest keeps a small gap at the ends instead,
+  // since it sits forward of the arms and must not stick out past them.
+  const endOverlap = 0.05
+  const footEndGap = 0.02
+  // How far a cushion insets from a boundary it shares with a neighbour — kept
+  // small so the cushions sit close together; the divider arm (when on) simply
+  // overlaps the narrow seam between them.
+  const interInset = dividers ? 0.03 : 0.012
 
-  // The upholstered arms: the two ends, and one between each pair of seats.
+  // The upholstered arms: always the two ends; a divider between each pair of
+  // seats only when dividers are on.
   const arms: { x: number; width: number }[] = [
     { x: -armX, width: THEATER_ARM_W },
     { x: armX, width: THEATER_ARM_W },
   ]
-  for (let i = 0; i < seats - 1; i++) arms.push({ x: seatX(i) + seatW / 2, width: THEATER_DIV_W })
+  if (dividers) for (let i = 0; i < seats - 1; i++) arms.push({ x: seatX(i) + seatW / 2, width: THEATER_DIV_W })
 
   return (
     <group>
@@ -607,46 +627,64 @@ function TheaterSofa({ w, d, seats: want, M }: SofaProps) {
         </group>
       ))}
       {Array.from({ length: seats }, (_, i) => {
-        const cushionW = seatW - seatInset
+        const leftB = seatX(i) - seatW / 2
+        const rightB = seatX(i) + seatW / 2
+        // The seat, back and headrest run out under the end arms (overlap) so
+        // nothing shows between them; interior sides inset for the divider/seam.
+        const bodyL = leftB - (i === 0 ? endOverlap : -interInset)
+        const bodyR = rightB + (i === seats - 1 ? endOverlap : -interInset)
+        const bodyW = bodyR - bodyL
+        const cx = (bodyL + bodyR) / 2
+        // The footrest sits forward of the arms, so it keeps the visible share
+        // width rather than tucking under them.
+        const footL = leftB + (i === 0 ? footEndGap : interInset)
+        const footR = rightB - (i === seats - 1 ? footEndGap : interInset)
+        const footW = footR - footL
+        const footCx = (footL + footR) / 2
         return (
           <group key={i}>
             {/* The plush seat cushion. */}
             <Soft
-              size={[cushionW, THEATER_SEAT_H, front - seatBack - 0.02]}
+              size={[bodyW, THEATER_SEAT_H, front - seatBack - 0.02]}
               round={[0.06, 0.08, 0.06]}
               puff={[0.01, 0.03, 0.01]}
               wrinkle={0.003}
-              position={[seatX(i), seatY + THEATER_SEAT_H / 2, (seatBack + front) / 2]}
+              position={[cx, seatY + THEATER_SEAT_H / 2, (seatBack + front) / 2]}
             >
               {M('cushions')}
             </Soft>
-            {/* The tall padded back. */}
-            <Soft
-              size={[cushionW, THEATER_BACK_TOP - baseTop, THEATER_BACK_T]}
-              round={[0.06, 0.07, 0.06]}
-              puff={[0.012, 0.01, 0.02]}
-              position={[seatX(i), (THEATER_BACK_TOP + baseTop) / 2, back + THEATER_BACK_T / 2]}
-            >
-              {M('cushions')}
-            </Soft>
-            {/* The headrest standing on the back. */}
-            <Soft
-              size={[cushionW - 0.04, THEATER_HEAD_H, THEATER_HEAD_T]}
-              round={[0.08, 0.09, 0.08]}
-              puff={[0.012, 0.012, 0.03]}
-              position={[seatX(i), THEATER_BACK_TOP + THEATER_HEAD_H / 2 - 0.02, back + THEATER_HEAD_T / 2 + 0.02]}
-            >
-              {M('cushions')}
-            </Soft>
-            {/* The footrest run out in front, at seat height. */}
-            <Soft
-              size={[cushionW, THEATER_FOOT_H2, THEATER_FOOT_LEN]}
-              round={[0.05, 0.06, 0.06]}
-              puff={[0.008, 0.02, 0.008]}
-              position={[seatX(i), seatY + THEATER_FOOT_H2 / 2, front + THEATER_FOOT_LEN / 2]}
-            >
-              {M('cushions')}
-            </Soft>
+            {/* The tall back and its headrest, leaning back about the base of
+                the back so the whole seat reclines. */}
+            <group position={[cx, baseTop, back + THEATER_BACK_T]} rotation={[-THEATER_RECLINE, 0, 0]}>
+              <Soft
+                size={[bodyW, THEATER_BACK_TOP - baseTop, THEATER_BACK_T]}
+                round={[0.06, 0.07, 0.06]}
+                puff={[0.012, 0.01, 0.02]}
+                position={[0, (THEATER_BACK_TOP - baseTop) / 2, -THEATER_BACK_T / 2]}
+              >
+                {M('cushions')}
+              </Soft>
+              <Soft
+                size={[bodyW - 0.04, THEATER_HEAD_H, THEATER_HEAD_T]}
+                round={[0.08, 0.09, 0.08]}
+                puff={[0.012, 0.012, 0.03]}
+                position={[0, THEATER_BACK_TOP - baseTop + THEATER_HEAD_H / 2 - 0.02, THEATER_HEAD_T / 2 - THEATER_BACK_T + 0.02]}
+              >
+                {M('cushions')}
+              </Soft>
+            </group>
+            {/* The footrest, tipped partly down from level about the seat front
+                (the reclined pose), not sticking straight out. */}
+            <group position={[footCx, seatY, front]} rotation={[THEATER_FOOT_DROP, 0, 0]}>
+              <Soft
+                size={[footW, THEATER_FOOT_H2, THEATER_FOOT_LEN]}
+                round={[0.05, 0.06, 0.06]}
+                puff={[0.008, 0.02, 0.008]}
+                position={[0, THEATER_FOOT_H2 / 2, THEATER_FOOT_LEN / 2]}
+              >
+                {M('cushions')}
+              </Soft>
+            </group>
           </group>
         )
       })}

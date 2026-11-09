@@ -145,7 +145,9 @@ const config = parse(yaml)
 const ACTIVE = new Set(['light', 'cover', 'media', 'climate', 'kitchen', 'laundry', 'bathroom', 'security', 'utility'])
 const DOMAIN: Record<string, string> = { light: 'light', cover: 'cover', media: 'media_player', climate: 'climate', security: 'binary_sensor' }
 const mockDevices: DeviceConfig[] = (config.decorations ?? [])
-  .filter(d => ACTIVE.has(decorationKind(d.kind)?.family ?? ''))
+  // A cover set to "always open" has no sensor on purpose, so leave it unbound
+  // to show that look; everything else in an active family gets a mock device.
+  .filter(d => ACTIVE.has(decorationKind(d.kind)?.family ?? '') && !((d.params?.open ?? 0) > 0.5))
   .map(d => {
     const family = decorationKind(d.kind)?.family ?? ''
     return { entity_id: `${DOMAIN[family] ?? 'switch'}.demo_${d.id}`, room: d.room, position: d.position, decorations: [d.id] }
@@ -175,9 +177,44 @@ const card = document.createElement('diorama-card') as HTMLElement & {
   hass: HomeAssistant
 }
 card.style.cssText = 'display:block;width:100vw;height:100vh'
-card.setConfig({ ...config, aspect_ratio: `${innerWidth} / ${innerHeight}` } as CardConfig)
+
+// A category filter, so the showroom can show just one family of decorations at
+// a time instead of the whole catalog. Each room is one kind, so a room's
+// family is its kind's family.
+const familyOf = (id: string) => decorationKind(id)?.family ?? 'other'
+const families = [...new Set((config.rooms ?? []).map(r => familyOf(r.id)))].sort()
+let family = 'all'
+const render = () => {
+  const rooms = family === 'all' ? (config.rooms ?? []) : (config.rooms ?? []).filter(r => familyOf(r.id) === family)
+  const ids = new Set(rooms.map(r => r.id))
+  card.setConfig({
+    ...config,
+    rooms,
+    decorations: (config.decorations ?? []).filter(d => ids.has(d.room)),
+    devices: (config.devices ?? []).filter(dev => ids.has(dev.room)),
+    aspect_ratio: `${innerWidth} / ${innerHeight}`,
+  } as CardConfig)
+}
+render()
 card.hass = hass
 document.body.appendChild(card)
+
+// The dropdown that drives the category filter.
+const picker = document.createElement('select')
+picker.style.cssText =
+  'position:fixed;top:12px;left:118px;z-index:10;padding:8px 10px;border:0;border-radius:8px;' +
+  'font:600 13px system-ui;background:#30363d;color:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4)'
+for (const f of ['all', ...families]) {
+  const opt = document.createElement('option')
+  opt.value = f
+  opt.textContent = f === 'all' ? 'All categories' : f
+  picker.appendChild(opt)
+}
+picker.onchange = () => {
+  family = picker.value
+  render()
+}
+document.body.appendChild(picker)
 
 // One button toggles every mock device on and off together, so the lit look of
 // lights, covers and appliances can be checked without Home Assistant.

@@ -783,6 +783,9 @@ export const DECORATION_KINDS: DecorationKind[] = [
       flag('chaise', 'Chaise longue'),
       p('reach', 'Chaise length', SOFA_REACH, 1.2, 2.2),
       flag('flip', 'Chaise left'),
+      // Cinema recliner only: the padded arms between seats. On by default; off
+      // makes a continuous bench of cushions with only the end arms.
+      only(flag('dividers', 'Arms between seats', 1), ['theater']),
     ],
     { upholstery: SOFA_FABRIC_COLOR, cushions: SOFA_FABRIC_COLOR, legs: SOFA_LEG_COLOR },
     { upholstery: 'fabric', cushions: 'fabric', legs: 'matte' },
@@ -1250,12 +1253,21 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'storage',
     'Wardrobe',
     'floor',
-    [width(1.2, 0.6, 2.6), depth(0.6, 0.45, 0.75), height(2.1, 1.4, 2.5)],
+    [width(1.2, 0.6, 2.6), depth(0.6, 0.45, 0.75), height(2.1, 1.4, 2.6)],
     { cabinet: SCANDI.offWhite, fronts: SCANDI.oak, handles: SCANDI.slate },
     { cabinet: 'matte', fronts: 'wood', handles: 'metal' },
     undefined,
     [
       { id: 'hinged', label: 'Oak Doors' },
+      {
+        // A floor-to-ceiling bathroom / utility cabinet: narrow, shallow, full
+        // height, with hinged doors. Reuses the wardrobe carcass.
+        id: 'tall',
+        label: 'Tall Cabinet',
+        params: { width: 0.6, depth: 0.4, height: 2.6 },
+        colors: { cabinet: SCANDI.offWhite, fronts: SCANDI.offWhite, handles: SCANDI.slate },
+        materials: { cabinet: 'matte', fronts: 'matte', handles: 'metal' },
+      },
       {
         id: 'sliding',
         label: 'Sliding Paxa',
@@ -1434,7 +1446,10 @@ export const DECORATION_KINDS: DecorationKind[] = [
     [
       width(1.8, 0.6, 4),
       depth(0.35, 0.25, 0.45),
-      height(2.2, 1.8, 2.4),
+      // The top of the units off the floor — slides the whole run up and down.
+      p('height', 'Top height', 2.2, 1.8, 2.6, 0.01),
+      // The cabinets' own height; they shrink if the top is set too low to fit.
+      p('cab_height', 'Cabinet height', 0.7, 0.4, 1.4, 0.01),
       flag('wide', 'Wide module'),
       cycle('grow', 'Growing module'),
     ],
@@ -2693,7 +2708,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'cover',
     'Door',
     'wall',
-    [width(0.85, 0.6, 1.4), height(2.05, 1.8, 2.4), flag('flip', 'Hinge right')],
+    [width(0.85, 0.6, 1.4), height(2.05, 1.8, 2.4), flag('flip', 'Hinge right'), flag('open', 'Always open')],
     { frame: SCANDI.offWhite, panel: SCANDI.offWhite, handle: SCANDI.charcoal },
     { frame: 'matte', panel: 'matte', handle: 'metal' },
     TOGGLE,
@@ -2718,7 +2733,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'cover',
     'Sliding door',
     'wall',
-    [width(1.8, 0.9, 6), height(2.1, 1.8, 2.6), panels(), flag('flip', 'Slide left')],
+    [width(1.8, 0.9, 6), height(2.1, 1.8, 2.6), panels(), flag('flip', 'Slide left'), flag('open', 'Always open')],
     { frame: SCANDI.slate, panel: SCANDI.offWhite },
     { frame: 'metal', panel: 'matte' },
     TOGGLE_LEVEL,
@@ -2738,7 +2753,7 @@ export const DECORATION_KINDS: DecorationKind[] = [
     'cover',
     'Garage door',
     'wall',
-    [width(2.5, 1.8, 4), height(2.2, 1.8, 2.6)],
+    [width(2.5, 1.8, 4), height(2.2, 1.8, 2.6), flag('open', 'Always open')],
     { panels: SCANDI.mist, rail: SCANDI.slate },
     { panels: 'metal', rail: 'metal' },
     TOGGLE_LEVEL,

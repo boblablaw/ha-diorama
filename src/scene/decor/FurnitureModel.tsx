@@ -66,6 +66,7 @@ export default function FurnitureModel({ kind, item, state }: Props) {
           chaise={p('chaise') > 0.5}
           flip={p('flip') > 0.5}
           seats={p('seats') > 0 ? Math.round(p('seats')) : undefined}
+          dividers={p('dividers') !== 0}
           M={M}
         />
       )
