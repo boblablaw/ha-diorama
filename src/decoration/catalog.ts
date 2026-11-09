@@ -777,9 +777,9 @@ export const DECORATION_KINDS: DecorationKind[] = [
     [
       width(SOFA_WIDTH, 0.6, 4),
       depth(SOFA_DEPTH, 0.6, 1.3),
-      // 0 lets the width decide the number of seat/back cushion sets; 1 to 3
-      // pins it, so a pillow sofa can be made a one, two or three seater.
-      p('seats', 'Cushion sets', 0, 0, 3, 1, ''),
+      // 0 lets the width decide the number of seat/back cushion sets; 1 to 4
+      // pins it, so a sofa can be made a one- to four-seater.
+      p('seats', 'Cushion sets', 0, 0, 4, 1, ''),
       flag('chaise', 'Chaise longue'),
       p('reach', 'Chaise length', SOFA_REACH, 1.2, 2.2),
       flag('flip', 'Chaise left'),
@@ -802,6 +802,15 @@ export const DECORATION_KINDS: DecorationKind[] = [
         params: { width: 2.1, depth: 0.86 },
         colors: { upholstery: '#6f7a67', cushions: '#6f7a67', frame: '#9a6a42' },
         materials: { upholstery: 'fabric', cushions: 'fabric', frame: 'wood' },
+      },
+      {
+        // A home-theater recliner: wide leather bucket seats with cup-holder
+        // arms, tall headrests and footrests out front. Scales 2 to 4 seats.
+        id: 'theater',
+        label: 'Cinema Recliner',
+        params: { width: 2.4, depth: 0.95 },
+        colors: { upholstery: '#5a3b2b', cushions: '#5a3b2b', legs: '#1b1b1c' },
+        materials: { upholstery: 'leather', cushions: 'leather', legs: 'metal' },
       },
     ],
   ),

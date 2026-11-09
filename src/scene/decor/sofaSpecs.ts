@@ -71,3 +71,36 @@ export const RAIL_SEAT_RAIL: [number, number] = [0.07, 0.3]
 export const RAIL_BACK_T = 0.08
 export const RAIL_BACK_TOP = 0.74
 export const RAIL_CUSHION: [number, number, number] = [0.44, 0.16, 0.18]
+
+// The cinema recliner, after home-theater seating: a row of wide plush leather
+// bucket seats on a low dark base, a padded arm between every pair of seats as
+// well as at the ends with a cup holder sunk in each arm top, a tall backrest
+// with a separate headrest above it, and a footrest run out in front of every
+// seat (always reclined). Seats are wide, so it holds fewer across a width. The
+// model is in Sofas.tsx.
+export const THEATER_SEAT_MIN = 0.95
+// A short dark foot lifting the base off the floor, and the upholstered base
+// block the seats sit on.
+export const THEATER_FOOT_H = 0.06
+export const THEATER_BASE_H = 0.14
+// The plush seat cushion, whose top is the 42 cm seat.
+export const THEATER_SEAT_H = 0.22
+// The arms: wide at the ends, a little narrower between seats, both this tall.
+export const THEATER_ARM_W = 0.26
+export const THEATER_DIV_W = 0.18
+export const THEATER_ARM_TOP = 0.62
+// The cup holder sunk into the top of each arm: its radius and how deep.
+export const THEATER_CUP_R = 0.045
+export const THEATER_CUP_DEPTH = 0.05
+// The padded back and, standing on top of it, the headrest: back thickness and
+// top, then the headrest's height and thickness.
+export const THEATER_BACK_T = 0.22
+export const THEATER_BACK_TOP = 0.8
+export const THEATER_HEAD_H = 0.24
+export const THEATER_HEAD_T = 0.22
+// The reclined footrest run out in front of each seat: how far it reaches and
+// how thick the pad is.
+export const THEATER_FOOT_LEN = 0.52
+export const THEATER_FOOT_H2 = 0.16
+// The LED accent strip along the front of the base.
+export const THEATER_LED_H = 0.03

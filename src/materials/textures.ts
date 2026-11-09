@@ -25,7 +25,17 @@ export type Surface = {
 }
 
 export type SurfaceKind =
-  'wood' | 'wood_floor' | 'tiles' | 'terracotta' | 'carpet' | 'concrete' | 'fabric' | 'ceramic' | 'metal' | 'matte'
+  | 'wood'
+  | 'wood_floor'
+  | 'tiles'
+  | 'terracotta'
+  | 'carpet'
+  | 'concrete'
+  | 'fabric'
+  | 'ceramic'
+  | 'metal'
+  | 'matte'
+  | 'leather'
 
 const SIZE = 512
 // Cached per kind and per intensity, since the color map is baked with it.
@@ -207,6 +217,20 @@ const FIELDS: Record<
     roughness: 0.95,
     repeat: 4,
     normalScale: 0.05,
+  },
+  leather: {
+    // Upholstery leather: a soft broad mottle with a fine pebbled grain over
+    // it, and semi-gloss so it catches the light the way fabric never does.
+    // Furniture reads only the roughness (decor is painted plain), so the
+    // sheen is what shows on a sofa; the maps are here for completeness.
+    field: (u, v) => {
+      const mottle = fbm(u, v, 3, 3, 53, 3)
+      const grain = fbm(u, v, 24, 24, 57, 2)
+      return { height: mottle * 0.4 + grain * 0.6, light: 0.93 + mottle * 0.05 + grain * 0.04 }
+    },
+    roughness: 0.5,
+    repeat: 3,
+    normalScale: 0.08,
   },
 }
 
