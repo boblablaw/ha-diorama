@@ -754,7 +754,14 @@ export const DECORATION_KINDS: DecorationKind[] = [
     // A backlit movie-poster frame: a ~15 cm deep box on the wall whose poster
     // face lights from behind (and spills a glow round the edges) with its
     // entity. Width/height are the poster; height is where its middle hangs.
-    [p('width', 'Width', 0.69, 0.4, 1.2, 0.01), p('tall', 'Poster height', 1.0, 0.6, 1.6, 0.01), height(1.45, 0.6, 2.2)],
+    // Image slot 0 = plain lit panel; 1–12 loads /local/diorama/posters/<n>.jpg
+    // (your own image, dropped on the HA box) and backlights it.
+    [
+      p('width', 'Width', 0.69, 0.4, 1.2, 0.01),
+      p('tall', 'Poster height', 1.0, 0.6, 1.6, 0.01),
+      height(1.45, 0.6, 2.2),
+      p('image', 'Image slot', 0, 0, 12, 1, ''),
+    ],
     { frame: '#121214', poster: '#7b5cff' },
     { frame: 'matte', poster: 'matte' },
     LIGHT_SIGNALS,

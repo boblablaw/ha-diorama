@@ -13,17 +13,87 @@ import WallLamp from '#/scene/decor/WallLamps.tsx'
 import { WALL_LAMPS } from '#/scene/decor/wallLampSpecs.ts'
 import { FloatingShelf } from '#/scene/decor/Storage.tsx'
 import { Rod, Tube } from '#/scene/decor/parts.tsx'
-import { Shape, Vector3 } from 'three'
+import { SRGBColorSpace, Shape, TextureLoader, Vector3 } from 'three'
 import { LAMP_SHADOW_MAP_PX, LAMP_SHADOW_RADIUS } from '#/constants.ts'
 import { CEILING_HEIGHT_M, LAMP_KEY_SHARE, LAMP_OUTPUT, LAMP_THROUGH_SHARE, LIGHT_POINT_INTENSITY } from '#/theme.ts'
 import type { DecorationConfig } from '#/types.ts'
 
 import { useEased } from '#/scene/decor/ease.ts'
 import { useWarmed } from '#/scene/warm.ts'
-import { useLayoutEffect, useRef } from 'react'
-import type { BufferGeometry, Camera, Group, Mesh, PointLight, RectAreaLight } from 'three'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { BufferGeometry, Camera, Group, Mesh, PointLight, RectAreaLight, Texture } from 'three'
 import type { ItemState } from '#/scene/decor/state.ts'
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
+
+// The poster face of a lightbox. With an image slot set it loads a
+// user-supplied image from /local/diorama/posters/<slot>.jpg and shows it,
+// brightening (backlit) with the light; with no slot, or if the file is
+// missing, it falls back to a plain glowing colour panel. Nothing is bundled —
+// the image lives on the HA box, dropped in by the user.
+function PosterFace({
+  slot,
+  w,
+  tall,
+  z,
+  color,
+  material,
+  state,
+}: {
+  slot: number
+  w: number
+  tall: number
+  z: number
+  color: string
+  material: string
+  state: ItemState | null
+}) {
+  const [tex, setTex] = useState<Texture | null>(null)
+  useEffect(() => {
+    if (!slot || slot < 1) {
+      setTex(null)
+      return
+    }
+    let cancelled = false
+    new TextureLoader().load(
+      `/local/diorama/posters/${Math.round(slot)}.jpg`,
+      t => {
+        if (!cancelled) {
+          t.colorSpace = SRGBColorSpace
+          setTex(t)
+        }
+      },
+      undefined,
+      () => {
+        if (!cancelled) setTex(null)
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [slot])
+  const lit = useEased(state?.on ? (state.level ?? 1) : 0, 9)
+  if (tex) {
+    return (
+      <mesh position={[0, 0, z]} userData={{ transmits: true }}>
+        <boxGeometry args={[w, tall, 0.006]} />
+        <meshStandardMaterial
+          map={tex}
+          emissiveMap={tex}
+          emissive={'#ffffff'}
+          emissiveIntensity={0.12 + 0.9 * lit}
+          roughness={0.9}
+          toneMapped={false}
+        />
+      </mesh>
+    )
+  }
+  return (
+    <mesh position={[0, 0, z]} userData={{ transmits: true }}>
+      <boxGeometry args={[w, tall, 0.006]} />
+      <ShadeMaterial color={color} material={material} state={state} solid />
+    </mesh>
+  )
+}
 
 // Rect area lights need their uniform tables built once, and they only
 // light standard materials, which is what every model here uses.
@@ -347,10 +417,15 @@ export default function LightModel({ kind, item, state }: Props) {
             <BaseMaterial color={c('frame')} material={m('frame')} />
           </mesh>
           {/* The backlit poster face at the front. */}
-          <mesh position={[0, 0, boxDepth + 0.003]} userData={{ transmits: true }}>
-            <boxGeometry args={[w, tall, 0.006]} />
-            <ShadeMaterial color={c('poster')} material={m('poster')} state={state} />
-          </mesh>
+          <PosterFace
+            slot={p('image')}
+            w={w}
+            tall={tall}
+            z={boxDepth + 0.003}
+            color={c('poster')}
+            material={m('poster')}
+            state={state}
+          />
         </group>
       )
       break
