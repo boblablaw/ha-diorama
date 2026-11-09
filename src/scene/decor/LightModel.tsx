@@ -13,7 +13,7 @@ import WallLamp from '#/scene/decor/WallLamps.tsx'
 import { WALL_LAMPS } from '#/scene/decor/wallLampSpecs.ts'
 import { FloatingShelf } from '#/scene/decor/Storage.tsx'
 import { Rod, Tube } from '#/scene/decor/parts.tsx'
-import { Vector3 } from 'three'
+import { Shape, Vector3 } from 'three'
 import { LAMP_SHADOW_MAP_PX, LAMP_SHADOW_RADIUS } from '#/constants.ts'
 import { CEILING_HEIGHT_M, LAMP_KEY_SHARE, LAMP_OUTPUT, LAMP_THROUGH_SHARE, LIGHT_POINT_INTENSITY } from '#/theme.ts'
 import type { DecorationConfig } from '#/types.ts'
@@ -323,6 +323,86 @@ export default function LightModel({ kind, item, state }: Props) {
             <capsuleGeometry args={[0.016, Math.max(length - 0.032, 0.05), 8, 20]} />
             <ShadeMaterial color={c('diffuser')} material={m('diffuser')} state={state} />
           </mesh>
+        </group>
+      )
+      break
+    }
+    case 'poster_lightbox': {
+      // A backlit movie-poster frame: a deep dark box against the wall with a
+      // lit poster face at the front that glows with the entity. ~15 cm deep
+      // (6"), which is where the lights sit behind the poster in real life.
+      const w = p('width')
+      const tall = p('tall')
+      const height = p('height')
+      const boxDepth = 0.15
+      const border = 0.045
+      // The glow spills out of the front face into the room.
+      glowAt = [0, height, boxDepth]
+      glowSpread = Math.max(w, tall)
+      body = (
+        <group position={[0, height, 0]}>
+          {/* The deep frame box standing off the wall. */}
+          <mesh position={[0, 0, boxDepth / 2]}>
+            <boxGeometry args={[w + border * 2, tall + border * 2, boxDepth]} />
+            <BaseMaterial color={c('frame')} material={m('frame')} />
+          </mesh>
+          {/* The backlit poster face at the front. */}
+          <mesh position={[0, 0, boxDepth + 0.003]} userData={{ transmits: true }}>
+            <boxGeometry args={[w, tall, 0.006]} />
+            <ShadeMaterial color={c('poster')} material={m('poster')} state={state} />
+          </mesh>
+        </group>
+      )
+      break
+    }
+    case 'nanoleaf_triangles': {
+      // A cluster of flat triangular panels on the wall, tiled edge-to-edge in
+      // a row with two stepping up at the end, each glowing in the light's
+      // colour. `size` is the triangle edge.
+      const s = p('size')
+      const height = p('height')
+      const triH = (s * Math.sqrt(3)) / 2
+      const front = 0.02
+      glowAt = [0, height, front + 0.02]
+      glowSpread = s * 3
+      // An equilateral triangle centred on its centroid, apex up or down.
+      const triShape = (down: boolean) => {
+        const a = s / 2
+        const sh = new Shape()
+        if (down) {
+          sh.moveTo(-a, triH / 3)
+          sh.lineTo(a, triH / 3)
+          sh.lineTo(0, (-2 * triH) / 3)
+        } else {
+          sh.moveTo(-a, -triH / 3)
+          sh.lineTo(a, -triH / 3)
+          sh.lineTo(0, (2 * triH) / 3)
+        }
+        sh.closePath()
+        return sh
+      }
+      // [x, y, apexDown] — a row of five tiling edge-to-edge, then two rising.
+      const tiles: [number, number, boolean][] = [
+        [0, 0, false],
+        [s / 2, 0, true],
+        [s, 0, false],
+        [(3 * s) / 2, 0, true],
+        [2 * s, 0, false],
+        [(9 * s) / 4, triH, true],
+        [(11 * s) / 4, triH, false],
+      ]
+      const midX = (tiles[0][0] + tiles[tiles.length - 1][0]) / 2
+      // Each panel its own hue, so the cluster reads as separate triangles even
+      // when they all brighten together.
+      const palette = ['#39d7c0', '#2fb6e8', '#3b7bf0', '#6c5cf0', '#9b4df0', '#2fd37a', '#e85cc0']
+      body = (
+        <group position={[0, height, front]}>
+          {tiles.map(([x, y, down], i) => (
+            <mesh key={i} position={[x - midX, y, 0]} userData={{ transmits: true }}>
+              <shapeGeometry args={[triShape(down)]} />
+              <ShadeMaterial color={palette[i % palette.length]} material={m('panel')} state={state} solid />
+            </mesh>
+          ))}
         </group>
       )
       break

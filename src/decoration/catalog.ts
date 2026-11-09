@@ -747,6 +747,31 @@ export const DECORATION_KINDS: DecorationKind[] = [
     LIGHT_SIGNALS,
   ),
   kind(
+    'poster_lightbox',
+    'light',
+    'Poster lightbox',
+    'wall',
+    // A backlit movie-poster frame: a ~15 cm deep box on the wall whose poster
+    // face lights from behind (and spills a glow round the edges) with its
+    // entity. Width/height are the poster; height is where its middle hangs.
+    [p('width', 'Width', 0.69, 0.4, 1.2, 0.01), p('tall', 'Poster height', 1.0, 0.6, 1.6, 0.01), height(1.45, 0.6, 2.2)],
+    { frame: '#121214', poster: '#7b5cff' },
+    { frame: 'matte', poster: 'matte' },
+    LIGHT_SIGNALS,
+  ),
+  kind(
+    'nanoleaf_triangles',
+    'light',
+    'Light panels',
+    'wall',
+    // A cluster of triangular light panels on the wall that glow in the light's
+    // colour. Size is each triangle's edge; height is the cluster's middle.
+    [p('size', 'Panel size', 0.22, 0.12, 0.4, 0.01), height(1.5, 0.5, 2.3)],
+    { panel: LIGHT_SHADE_COLOR },
+    { panel: 'matte' },
+    LIGHT_SIGNALS,
+  ),
+  kind(
     'shelf_led',
     'light',
     'LED shelf',
