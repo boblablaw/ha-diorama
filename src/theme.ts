@@ -122,6 +122,7 @@ export const LAMP_OUTPUT: Record<string, number> = {
   light_desk: 0.6,
   light_wall: 0.8,
   light_ceiling: 1.35,
+  light_bar: 0.7,
 }
 // Daylight and night. The room is warm at both ends of the day: sunlight
 // comes in golden along the horizon and near white overhead, and once the

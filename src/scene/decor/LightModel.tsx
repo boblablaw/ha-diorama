@@ -134,15 +134,16 @@ function Glow({
   // hidden only once those are ready, and the frame that shows them does
   // not stall.
   const dark = lit < 0.01
-  // Close to linear with the level: a lamp at a third still lights the
-  // room around it, and still casts, instead of fading away first.
-  const total = dark ? 0 : LIGHT_POINT_INTENSITY * output * (0.25 + 0.75 * lit) * lit
+  // A lamp that is on reads as on: a floor plus a linear rise, so even a
+  // lamp at a quarter clearly lights the room around it instead of near
+  // fading away. Full brightness is unchanged; the low and middle are lifted.
+  const total = dark ? 0 : LIGHT_POINT_INTENSITY * output * (0.2 + 0.8 * lit)
   // What the bulb is heading for, so the lamps that may cast are ranked by
   // where they will be and not by where the fade has got to. Ranked by the
   // moment's intensity, a lamp coming on stood behind every lamp already
   // on until it was nearly full, and its shadows arrived only then.
   const level = state?.on ? (state.level ?? 1) : 0
-  const rank = LIGHT_POINT_INTENSITY * output * (0.25 + 0.75 * level) * level * LAMP_KEY_SHARE
+  const rank = LIGHT_POINT_INTENSITY * output * (0.2 + 0.8 * level) * LAMP_KEY_SHARE
   // The bulb asks for its shadow from the first frame it is lit. Which
   // lamps cast is settled on every draw, within the budget, so that has the
   // last word, see `balance`. It is only ever switched on here: switching
@@ -212,6 +213,39 @@ function Glow({
         userData={{ through: true }}
       />
     </>
+  )
+}
+
+// A light bar lights from its whole face rather than a point, so the wash
+// spreads evenly along its length instead of beading at the middle. A rect
+// area light the size of the bar's face, turned to shine out the front.
+function BarGlow({
+  state,
+  at,
+  width,
+  height,
+  output,
+}: {
+  state: LightState | null
+  at: [number, number, number]
+  width: number
+  height: number
+  output: number
+}) {
+  const lit = useEased(state?.on ? (state.level ?? 1) : 0, 9)
+  const [r, g, b] = state?.glow ?? [1, 1, 1]
+  const dark = lit < 0.01
+  const total = dark ? 0 : LIGHT_POINT_INTENSITY * output * (0.2 + 0.8 * lit)
+  return (
+    <rectAreaLight
+      position={at}
+      rotation={[0, Math.PI, 0]}
+      width={Math.max(width, 0.02)}
+      height={Math.max(height, 0.02)}
+      color={[r, g, b]}
+      intensity={total * 4}
+      visible={!dark}
+    />
   )
 }
 
@@ -626,6 +660,43 @@ export default function LightModel({ kind, item, state }: Props) {
       )
       break
     }
+    case 'light_bar': {
+      // A slim bias-light bar, the kind taped behind a TV or stood flat on a
+      // shelf: a rounded casing with a bright glowing face across its front.
+      // The Vertical switch turns it on end so a pair can flank a screen.
+      const L = p('length')
+      const height = p('height')
+      const vertical = p('vertical') > 0.5
+      const barW = 0.05 // the bar's short cross-section
+      const barD = 0.04 // its depth, front to back
+      const bx = vertical ? barW : L
+      const by = vertical ? L : barW
+      const faceZ = barD / 2 + 0.002
+      body = (
+        <group position={[0, height, 0]}>
+          {/* The casing. */}
+          <mesh>
+            <boxGeometry args={[bx, by, barD]} />
+            <BaseMaterial color={c('body')} material={m('body')} />
+          </mesh>
+          {/* The glowing face across the front. */}
+          <mesh position={[0, 0, faceZ]} userData={{ transmits: true }}>
+            <boxGeometry args={[bx * 0.84, by * 0.84, 0.006]} />
+            <ShadeMaterial color={c('light')} material={m('light')} state={state} solid />
+          </mesh>
+          {/* The bar lights from its whole face, not a point, so the wash is
+              even along its length. */}
+          <BarGlow
+            state={state}
+            at={[0, 0, faceZ + 0.02]}
+            width={bx * 0.84}
+            height={by * 0.84}
+            output={LAMP_OUTPUT['light_bar'] ?? 0.7}
+          />
+        </group>
+      )
+      break
+    }
     default:
       body = null
   }
@@ -633,7 +704,11 @@ export default function LightModel({ kind, item, state }: Props) {
   return (
     <group ref={own}>
       {body}
-      <Glow state={state} at={glowAt} spread={glowSpread} output={LAMP_OUTPUT[kind.id] ?? 1} />
+      {/* The light bar carries its own face-sized glow; every other kind takes
+          the shared point/strip glow. */}
+      {kind.id !== 'light_bar' && (
+        <Glow state={state} at={glowAt} spread={glowSpread} output={LAMP_OUTPUT[kind.id] ?? 1} />
+      )}
     </group>
   )
 }

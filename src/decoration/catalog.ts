@@ -717,6 +717,20 @@ export const DECORATION_KINDS: DecorationKind[] = [
     LIGHT_SIGNALS,
   ),
   kind(
+    'light_bar',
+    'light',
+    'Light bar',
+    'floor',
+    // A slim bias-light bar — the kind taped behind a TV or stood flat on a
+    // shelf for a back-wall wash. Length is the long dimension (the height when
+    // stood on end); the Vertical switch turns it on end so a pair can flank a
+    // screen; height is where it sits.
+    [length(0.25, 0.12, 0.6), height(0.5, 0, 2.2), flag('vertical', 'Vertical', 0)],
+    { body: '#f2efe9', light: LIGHT_SHADE_COLOR },
+    { body: 'matte', light: 'matte' },
+    LIGHT_SIGNALS,
+  ),
+  kind(
     'light_strip',
     'light',
     'Floor LED strip',
@@ -2054,6 +2068,14 @@ export const DECORATION_KINDS: DecorationKind[] = [
         materials: { pot: 'ceramic', soil: 'matte', stems: 'wood', leaves: 'matte' },
         params: { size: 0.7, height: 1.7 },
       },
+      {
+        id: 'money_tree',
+        label: 'Money tree',
+        // Braided trunk in a seagrass basket, glossy palmate leaves.
+        colors: { pot: '#c9b79c', soil: '#3c332b', stems: '#8a7250', leaves: '#3f7a3e' },
+        materials: { pot: 'fabric', soil: 'matte', stems: 'wood', leaves: 'wood' },
+        params: { size: 0.8, height: 1.5 },
+      },
     ],
   ),
   kind(
@@ -2095,6 +2117,38 @@ export const DECORATION_KINDS: DecorationKind[] = [
         colors: { pot: '#b5754a', soil: '#3c332b', stems: '#6e3b52', leaves: '#4f7a46', markings: '#7a3f73' },
         materials: { pot: 'terracotta', soil: 'matte', stems: 'matte', leaves: 'wood', markings: 'matte' },
         params: { size: 0.3, height: 0.28, trail: 0.7 },
+      },
+      {
+        id: 'jade',
+        label: 'Jade plant',
+        // Branching succulent, thick glossy leaves, white ceramic cachepot.
+        colors: { pot: '#eceae4', soil: '#3c332b', stems: '#6e5a44', leaves: '#5d8a4e' },
+        materials: { pot: 'ceramic', soil: 'matte', stems: 'wood', leaves: 'ceramic' },
+        params: { size: 0.3, height: 0.3 },
+      },
+      {
+        id: 'alocasia',
+        label: 'Alocasia',
+        // Dark arrowhead leaves with bold pale veins, black pot.
+        colors: { pot: '#2b2c2d', soil: '#3c332b', stems: '#5a7a48', leaves: '#2f5a37', markings: '#e8efe0' },
+        materials: { pot: 'ceramic', soil: 'matte', stems: 'matte', leaves: 'wood', markings: 'matte' },
+        params: { size: 0.4, height: 0.5 },
+      },
+      {
+        id: 'moon_cactus',
+        label: 'Moon cactus',
+        // Tall green column with a yellow-orange grafted ball, small grey pot.
+        colors: { pot: '#8d8d8d', soil: '#6b6b63', stems: '#4a8a4e', leaves: '#4a8a4e', cap: '#f3a83a' },
+        materials: { pot: 'ceramic', soil: 'matte', stems: 'matte', leaves: 'matte', cap: 'matte' },
+        params: { size: 0.16, height: 0.24 },
+      },
+      {
+        id: 'bonsai',
+        label: 'Schefflera bonsai',
+        // Curved trunk + aerial roots, umbrella leaflet clusters, shallow burgundy pot.
+        colors: { pot: '#7a2e2a', soil: '#5b5b53', stems: '#6e5a44', leaves: '#3f7a40' },
+        materials: { pot: 'ceramic', soil: 'matte', stems: 'wood', leaves: 'ceramic' },
+        params: { size: 0.4, height: 0.4 },
       },
     ],
   ),

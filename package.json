@@ -10,8 +10,8 @@
     "watch": "vite build --watch",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "showroom": "node scripts/showroom.ts",
-    "demoflat": "node scripts/demoflat.ts",
+    "showroom": "node --import ./scripts/alias-hook.mjs scripts/showroom.ts",
+    "demoflat": "node --import ./scripts/alias-hook.mjs scripts/demoflat.ts",
     "release": "node scripts/release.ts"
   },
   "imports": {

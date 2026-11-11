@@ -1087,6 +1087,169 @@ function dracaena(size: number, height: number, potH: number): Parts {
   return f
 }
 
+// Elephant-ear arrowhead leaf: widest a third up, tapering to a point.
+const ARROW = outline([
+  [0, 0.14],
+  [0.1, 0.72],
+  [0.22, 0.64],
+  [0.45, 0.48],
+  [0.68, 0.32],
+  [0.88, 0.16],
+  [1, 0],
+])
+
+// Jade plant, Crassula ovata: a short thick trunk forking into stubby
+// branches, each hung with paired plump oval leaves.
+function jade(size: number, height: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage() }
+  const rnd = random(71)
+  const soil = potH * 0.9
+  const R = clamp(height * 0.04, 0.012, 0.03)
+  const forkY = soil + (height - soil) * 0.32
+  f.stems.stem([[0, soil - 0.02, 0], [0.004, (soil + forkY) / 2, 0.004], [0, forkY, 0]], R, R * 0.8)
+  const top = new Vector3(0, forkY, 0)
+  for (let i = 0; i < 5; i++) {
+    const a = i * 2.4 + rnd() * 0.3
+    const dir = heading(a, 0.8 + rnd() * 0.4)
+    const len = (height - forkY) * (0.5 + rnd() * 0.5)
+    const end = top.clone().addScaledVector(dir, len)
+    f.stems.stem([top.toArray() as Vec3, end.toArray() as Vec3], R * 0.7, R * 0.4)
+    const pairs = Math.max(2, Math.round(len / 0.03))
+    for (let j = 0; j < pairs; j++) {
+      const s = 0.45 + (0.55 * (j + 1)) / pairs
+      const at = top.clone().lerp(end, s)
+      const ll = clamp(size * 0.11, 0.02, 0.05) * (0.8 + rnd() * 0.25)
+      for (const sign of [-1, 1])
+        f.leaves.blade(
+          { length: ll, width: ll * 0.62, outline: OVAL, fold: 0.06, curl: ll * 0.12, rows: 6, cols: 3 },
+          place(at, heading(a + sign * 1.4, 0.15 + rnd() * 0.3)),
+        )
+    }
+    const tip = clamp(size * 0.11, 0.02, 0.05)
+    f.leaves.blade({ length: tip, width: tip * 0.62, outline: OVAL, fold: 0.06, curl: tip * 0.12, rows: 6, cols: 3 }, place(end, heading(a, 0.7)))
+  }
+  return f
+}
+
+// Money tree, Pachira aquatica: a braided trunk of three canes topped with
+// palmate clusters of five lance leaflets.
+function moneyTree(size: number, height: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage() }
+  const rnd = random(83)
+  const soil = potH * 0.9
+  const braidTop = soil + (height - soil) * 0.5
+  for (let c = 0; c < 3; c++) {
+    const phase = (c / 3) * Math.PI * 2
+    const pts: Vec3[] = []
+    for (let t = 0; t <= 10; t++) {
+      const y = soil - 0.03 + (braidTop - soil + 0.03) * (t / 10)
+      const tw = (t / 10) * Math.PI * 2.2
+      pts.push([Math.cos(phase + tw) * 0.018, y, Math.sin(phase + tw) * 0.018])
+    }
+    f.stems.stem(pts, 0.013, 0.011)
+  }
+  const top = new Vector3(0, braidTop, 0)
+  for (let i = 0; i < 5; i++) {
+    const a = i * 2.4 + rnd() * 0.3
+    const dir = heading(a, 0.85 + rnd() * 0.4)
+    const len = Math.min((height - braidTop) * (0.55 + rnd() * 0.4), size * 0.5)
+    const end = top.clone().addScaledVector(dir, len)
+    f.stems.stem([top.toArray() as Vec3, end.toArray() as Vec3], 0.008, 0.005)
+    const leafl = clamp(height * 0.13, 0.08, 0.2)
+    for (let k = 0; k < 5; k++) {
+      const spread = (k - 2) * 0.42
+      const scale = 0.72 + 0.28 * (1 - Math.abs(k - 2) / 2)
+      f.leaves.blade(
+        { length: leafl * scale, width: leafl * 0.3, outline: LANCE, fold: 0.2, droop: leafl * 0.12, curl: leafl * 0.03, rows: 8, cols: 2 },
+        place(end, heading(a + spread, 0.12 - Math.abs(k - 2) * 0.1)),
+      )
+    }
+  }
+  return f
+}
+
+// Alocasia x amazonica 'Polly': long stalks from the soil, each an upright
+// arrowhead leaf with bold pale veins.
+function alocasia(size: number, height: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage(), markings: new Foliage() }
+  const rnd = random(97)
+  const soil = potH * 0.9
+  const L = clamp(Math.min(height * 0.42, size * 0.6), 0.1, 0.26)
+  for (let i = 0; i < 6; i++) {
+    const a = i * 2.4 + rnd() * 0.3
+    const rise = 1.02 - (i % 3) * 0.12 - rnd() * 0.08
+    const stalk = Math.max(0.08, ((height - soil - L * 0.6) / Math.sin(rise)) * (0.6 + rnd() * 0.4))
+    const base = new Vector3(Math.sin(a) * 0.02, soil, Math.cos(a) * 0.02)
+    const end = base.clone().addScaledVector(heading(a, rise), stalk)
+    f.stems.stem([base.toArray() as Vec3, end.toArray() as Vec3], 0.006, 0.004)
+    const blade: Blade = { length: L * (0.82 + rnd() * 0.2), width: L * 0.55, outline: ARROW, sinus: 0.08, fold: 0.2, droop: L * 0.05, rows: 22, cols: 7 }
+    const m = place(end, heading(a + (rnd() - 0.5) * 0.3, rise - 0.28), heading(a, 0).negate())
+    f.leaves.blade(blade, m)
+    const veins = (u: number, t: number) =>
+      Math.abs(u) < 0.045 || (Math.abs(Math.abs(u) - (0.18 + 0.5 * t)) < 0.028 && t > 0.12 && t < 0.82)
+    f.markings.blade({ ...blade, lift: 0.0008, keep: veins }, m)
+  }
+  return f
+}
+
+// Grafted moon cactus: a short green column topped with a red-orange ball
+// (the scion) and a couple of small offsets.
+function moonCactus(size: number, height: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), cap: new Foliage() }
+  const rnd = random(5)
+  const soil = potH * 0.9
+  const colH = Math.max(0.045, (height - potH) * 0.8)
+  const colR = clamp(size * 0.14, 0.012, 0.025)
+  f.stems.stem([[0, soil - 0.01, 0], [0, soil + colH, 0]], colR, colR * 0.9)
+  const ballR = clamp(size * 0.3, 0.02, 0.05)
+  const ballY = soil + colH + ballR * 0.7
+  f.cap.add(new IcosahedronGeometry(ballR, 2), new Matrix4().makeTranslation(0, ballY, 0))
+  for (let i = 0; i < 2; i++) {
+    const a = rnd() * Math.PI * 2
+    f.cap.add(new IcosahedronGeometry(ballR * 0.4, 1), new Matrix4().makeTranslation(Math.cos(a) * ballR * 0.9, ballY, Math.sin(a) * ballR * 0.9))
+  }
+  return f
+}
+
+// Schefflera arboricola bonsai: a thick curved trunk with aerial roots over
+// the soil and umbrella clusters of glossy leaflets at the branch ends.
+function bonsai(size: number, height: number, potH: number): Parts {
+  const f: Parts = { stems: new Foliage(), leaves: new Foliage() }
+  const rnd = random(113)
+  const soil = potH * 0.9
+  const trunkTop = soil + (height - soil) * 0.45
+  const curve = 0.05
+  const top = new Vector3(curve, trunkTop, 0)
+  f.stems.stem(
+    [[0, soil - 0.02, 0], [curve * 1.3, soil + (trunkTop - soil) * 0.5, 0.01], [curve, trunkTop, 0]],
+    clamp(height * 0.045, 0.015, 0.04),
+    clamp(height * 0.025, 0.01, 0.024),
+  )
+  for (let i = 0; i < 4; i++) {
+    const a = i * 1.7 + rnd()
+    const r = clamp(size * 0.2, 0.02, 0.06)
+    f.stems.stem(
+      [[curve * 0.6, soil + 0.01, 0], [Math.cos(a) * r * 0.6, soil, Math.sin(a) * r * 0.6], [Math.cos(a) * r, soil - 0.004, Math.sin(a) * r]],
+      0.004,
+      0.002,
+    )
+  }
+  for (let i = 0; i < 4; i++) {
+    const a = i * 2.4 + rnd() * 0.3
+    const dir = heading(a, 0.7 + rnd() * 0.5)
+    const len = (height - trunkTop) * (0.5 + rnd() * 0.5)
+    const end = top.clone().addScaledVector(dir, len)
+    f.stems.stem([top.toArray() as Vec3, end.toArray() as Vec3], 0.007, 0.004)
+    const leafl = clamp(size * 0.13, 0.03, 0.07)
+    for (let k = 0; k < 7; k++)
+      f.leaves.blade(
+        { length: leafl * (0.7 + 0.3 * rnd()), width: leafl * 0.42, outline: OVAL, fold: 0.1, droop: leafl * 0.08, rows: 6, cols: 2 },
+        place(end, heading((k / 7) * Math.PI * 2, 0.12)),
+      )
+  }
+  return f
+}
+
 export function FloorPlant({
   style,
   wilt = 0,
@@ -1102,7 +1265,8 @@ export function FloorPlant({
   wilt?: number
 }) {
   const kind =
-    (['monstera', 'kentia', 'mango', 'bird', 'bamboo', 'ficus', 'dracaena'] as const).find(k => k === style) ?? 'fiddle'
+    (['monstera', 'kentia', 'mango', 'bird', 'bamboo', 'ficus', 'dracaena', 'money_tree'] as const).find(k => k === style) ??
+    'fiddle'
   const potR = kind === 'kentia' ? clamp(size * 0.16, 0.14, 0.22) : clamp(size * 0.2, 0.1, 0.2)
   const potH = kind === 'kentia' ? clamp(height * 0.2, 0.2, 0.38) : clamp(height * 0.2, 0.16, 0.34)
   const grown = useMemo(
@@ -1122,7 +1286,9 @@ export function FloorPlant({
                     ? ficus(size, height, potH)
                     : kind === 'dracaena'
                       ? dracaena(size, height, potH)
-                      : fiddle(size, height, potH),
+                      : kind === 'money_tree'
+                        ? moneyTree(size, height, potH)
+                        : fiddle(size, height, potH),
       ),
     [kind, size, height, potH],
   )
@@ -1152,9 +1318,27 @@ export function ShelfPlant({
   // 0 watered to 1 dry.
   wilt?: number
 }) {
-  const kind = ['pilea', 'snake', 'tradescantia'].includes(style) ? style : 'pothos'
-  const potR = kind === 'snake' ? clamp(size * 0.35, 0.05, 0.1) : clamp(size * 0.22, 0.05, 0.09)
-  const potH = kind === 'pilea' ? potR * 1.5 : potR * 1.7
+  const kind = ['pilea', 'snake', 'tradescantia', 'jade', 'alocasia', 'moon_cactus', 'bonsai'].includes(style)
+    ? style
+    : 'pothos'
+  const potR =
+    kind === 'snake'
+      ? clamp(size * 0.35, 0.05, 0.1)
+      : kind === 'bonsai'
+        ? clamp(size * 0.42, 0.08, 0.16)
+        : kind === 'moon_cactus'
+          ? clamp(size * 0.5, 0.03, 0.055)
+          : clamp(size * 0.22, 0.05, 0.09)
+  const potH =
+    kind === 'bonsai'
+      ? potR * 0.42
+      : kind === 'moon_cactus'
+        ? potR * 1.1
+        : kind === 'pilea'
+          ? potR * 1.5
+          : kind === 'jade'
+            ? potR * 1.4
+            : potR * 1.7
   const grown = useMemo(
     () =>
       grow(
@@ -1164,15 +1348,24 @@ export function ShelfPlant({
             ? snake(size, height, potR, potH)
             : kind === 'tradescantia'
               ? tradescantia(size, height, trail, potR, potH)
-              : pothos(size, height, trail, potR, potH),
+              : kind === 'jade'
+                ? jade(size, height, potH)
+                : kind === 'alocasia'
+                  ? alocasia(size, height, potH)
+                  : kind === 'moon_cactus'
+                    ? moonCactus(size, height, potH)
+                    : kind === 'bonsai'
+                      ? bonsai(size, height, potH)
+                      : pothos(size, height, trail, potR, potH),
       ),
     [kind, size, height, trail, potR, potH],
   )
+  const flat = kind === 'pilea' ? ['markings'] : kind === 'moon_cactus' ? ['stems', 'cap'] : ['stems']
   return (
     <group>
       <Pot r={potR} h={potH} shape={kind === 'pilea' ? 'terracotta' : 'straight'} paint={paint} />
       <Wilt at={potH} wilt={wilt}>
-        <Growth grown={grown} paint={paint} flat={kind === 'pilea' ? ['markings'] : ['stems']} />
+        <Growth grown={grown} paint={paint} flat={flat} />
       </Wilt>
     </group>
   )

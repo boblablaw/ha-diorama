@@ -19,7 +19,16 @@ const decorations: string[] = []
 let y = 0
 let left = 0
 let widest = 0
-for (const kind of DECORATION_KINDS) {
+// Lay the rooms out family by family so every light sits with the other
+// lights, every seat with the other seats, and so on, instead of in the
+// catalog's own order. The sort is stable, so within a family the kinds keep
+// that order. Families run alphabetically; 'other' is pushed to the end so the
+// odds and ends don't split the named groups.
+const byFamily = [...DECORATION_KINDS].sort((a, b) => {
+  const rank = (f: string) => (f === 'other' ? '~' : f)
+  return rank(a.family).localeCompare(rank(b.family))
+})
+for (const kind of byFamily) {
   const styles = kind.variants?.map(v => v.id) ?? [undefined]
   const sizes = styles.map(v => footprint(kind, undefined, v))
   const width = sizes.reduce((s, [w]) => s + w + PAD, PAD)

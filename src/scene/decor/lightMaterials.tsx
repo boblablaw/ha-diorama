@@ -44,8 +44,10 @@ export function ShadeMaterial({
       opacity={solid ? 1 : 1 - 0.22 * lit}
       emissive={[glow[0], glow[1], glow[2]]}
       // Kept under one: past that the tone mapping rolls a bright color off
-      // toward white, which is what made a colored lamp read as pale.
-      emissiveIntensity={lit * (0.15 + lit * 0.35)}
+      // toward white, which is what made a colored lamp read as pale. The
+      // curve lifts the low end (a shade at a quarter still clearly glows)
+      // while holding the same full-on peak, and stays at nothing when off.
+      emissiveIntensity={0.5 * Math.pow(lit, 0.6)}
     />
   )
 }
@@ -65,7 +67,7 @@ export function TintedGlassMaterial({
   const lit = useEased(state?.on ? (state.level ?? 1) : 0, 9)
   const glow = useMemo(() => new Color(color), [color])
   return (
-    <Material material={material} color={color} emissive={[glow.r, glow.g, glow.b]} emissiveIntensity={lit * 0.6} />
+    <Material material={material} color={color} emissive={[glow.r, glow.g, glow.b]} emissiveIntensity={0.6 * Math.pow(lit, 0.6)} />
   )
 }
 

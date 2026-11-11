@@ -195,9 +195,17 @@ const render = () => {
     aspect_ratio: `${innerWidth} / ${innerHeight}`,
   } as CardConfig)
 }
+// The card turns the mouse wheel into a zoom only when it has the screen to
+// itself, which it reads from a `hui-panel-view` ancestor (otherwise the wheel
+// is left to scroll the dashboard). The showroom does give the card the whole
+// screen, so stand it in a stand-in panel view to switch wheel-zoom on. Orbit
+// (left-drag), pan (right-drag) and pinch/middle-drag zoom work regardless.
+const panelView = document.createElement('hui-panel-view')
+panelView.style.cssText = 'display:block;width:100vw;height:100vh'
+document.body.appendChild(panelView)
+panelView.appendChild(card)
 render()
 card.hass = hass
-document.body.appendChild(card)
 
 // The dropdown that drives the category filter.
 const picker = document.createElement('select')
